@@ -60,16 +60,26 @@
             <stringProp name="Argument.value">4000</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
+          <elementProp name="current_AnoMes" elementType="Argument">
+            <stringProp name="Argument.name">current_AnoMes</stringProp>
+            <stringProp name="Argument.value">${__time(yyyyMM,)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="current_MONTH" elementType="Argument">
+            <stringProp name="Argument.name">current_MONTH</stringProp>
+            <stringProp name="Argument.value">${__time(MM,)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
         </collectionProp>
       </elementProp>
     </TestPlan>
     <hashTree>
-      <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="skip_Threads_sameTime_BD">
-        <stringProp name="ConstantTimer.delay">2000</stringProp>
-        <stringProp name="RandomTimer.range">3000</stringProp>
+      <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="skip_Threads_sameTime_BD" enabled="false">
+        <stringProp name="ConstantTimer.delay">1000</stringProp>
+        <stringProp name="RandomTimer.range">1000</stringProp>
       </UniformRandomTimer>
       <hashTree/>
-      <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="util_PostProcessor">
+      <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="util_PostProcessor" enabled="true">
         <stringProp name="scriptLanguage">groovy</stringProp>
         <stringProp name="parameters"></stringProp>
         <stringProp name="filename"></stringProp>
@@ -240,7 +250,7 @@ if (sampler instanceof org.apache.jmeter.protocol.jdbc.sampler.JDBCSampler) {
         <stringProp name="username">GUS_APP</stringProp>
       </JDBCDataSource>
       <hashTree/>
-      <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="startGroovy">
+      <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="startGroovy" enabled="true">
         <stringProp name="cacheKey">true</stringProp>
         <stringProp name="filename"></stringProp>
         <stringProp name="parameters"></stringProp>
@@ -372,7 +382,7 @@ if (sampler instanceof HTTPSamplerProxy) {
         <stringProp name="filename"></stringProp>
       </ResultCollector>
       <hashTree/>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="ORQUESTRADOR">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="ORQUESTRADOR" enabled="true">
         <intProp name="ThreadGroup.num_threads">1</intProp>
         <intProp name="ThreadGroup.ramp_time">1</intProp>
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
@@ -383,7 +393,7 @@ if (sampler instanceof HTTPSamplerProxy) {
         </elementProp>
       </ThreadGroup>
       <hashTree>
-        <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname=".ENV">
+        <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname=".ENV" enabled="true">
           <collectionProp name="Arguments.arguments">
             <elementProp name="NISS_EE" elementType="Argument">
               <stringProp name="Argument.name">NISS_EE</stringProp>
@@ -468,7 +478,211 @@ if (sampler instanceof HTTPSamplerProxy) {
           </collectionProp>
         </Arguments>
         <hashTree/>
+        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="0.  Validar que o sistema obtém o dia do parâetro DVENCONFEE e calcula corretamente a data limite no mês seguinte ao ano-mês de referência quando o dia resultante é útil." enabled="true">
+          <boolProp name="TransactionController.parent">true</boolProp>
+          <boolProp name="TransactionController.includeTimers">false</boolProp>
+        </TransactionController>
+        <hashTree>
+          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="UPDATE DE PERIDO">
+            <stringProp name="dataSource">dbConnection</stringProp>
+            <stringProp name="query">UPDATE GRS.PARAMETRO
+set NUMERICO_1 = ${DIA_RESULTADO} 
+WHERE CODIGO_PARAMETRO=&apos;DVENCONFEE&apos;</stringProp>
+            <stringProp name="queryArguments"></stringProp>
+            <stringProp name="queryArgumentsTypes"></stringProp>
+            <stringProp name="queryTimeout"></stringProp>
+            <stringProp name="queryType">Update Statement</stringProp>
+            <stringProp name="resultSetHandler">Store as String</stringProp>
+            <stringProp name="resultSetMaxRows"></stringProp>
+            <stringProp name="resultVariable"></stringProp>
+            <stringProp name="variableNames"></stringProp>
+          </JDBCSampler>
+          <hashTree>
+            <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="next_friday" enabled="false">
+              <stringProp name="scriptLanguage">groovy</stringProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="cacheKey">true</stringProp>
+              <stringProp name="script">import java.time.LocalDate
+import java.time.DayOfWeek
+import java.time.temporal.TemporalAdjusters
+
+LocalDate hoje = LocalDate.now()
+
+DayOfWeek diaDesejado = DayOfWeek.FRIDAY
+// DayOfWeek.SATURDAY
+// DayOfWeek.SUNDAY
+// DayOfWeek.MONDAY
+
+// Próximo dia da semana (ignora hoje)
+LocalDate proximoDia = hoje.with(
+    TemporalAdjusters.next(diaDesejado)
+)
+
+// Dia do mês
+String dia = proximoDia.getDayOfMonth().toString()
+
+
+vars.put(&quot;DIA_SEXTA&quot;, dia)
+
+log.info(&quot;Próxima sexta: &quot; + proximoDia)
+log.info(&quot;Dia salvo: &quot; + dia)</stringProp>
+            </JSR223PreProcessor>
+            <hashTree/>
+            <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="next_friday_V2">
+              <stringProp name="scriptLanguage">groovy</stringProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="cacheKey">true</stringProp>
+              <stringProp name="script">import java.time.LocalDate
+import java.time.DayOfWeek
+import java.time.temporal.TemporalAdjusters
+import java.time.format.DateTimeFormatter
+
+LocalDate hoje = LocalDate.now()
+
+String diaSemana = vars.get(&quot;DIA_SEMANA&quot;) ?: &quot;FRIDAY&quot;
+DayOfWeek diaDesejado = DayOfWeek.valueOf(diaSemana)
+
+LocalDate proximoDia = hoje.with(
+    TemporalAdjusters.next(diaDesejado)
+)
+
+// 1. Dia do mês
+String dia = proximoDia.getDayOfMonth().toString()
+vars.put(&quot;DIA_RESULTADO&quot;, dia)
+
+
+// 2. Data completa PARA USAR NO VERICA DATA FIM PERIODO
+String dataCompleta = proximoDia.format(DateTimeFormatter.ofPattern(&quot;yyyy-MM-dd&quot;))
+vars.put(&quot;DATA_RESULTADO&quot;, dataCompleta)
+log.info(&quot;Próximo ${diaSemana}: ${proximoDia}&quot;)
+log.info(&quot;Dia: ${dia}&quot;)
+log.info(&quot;Data completa: ${dataCompleta}&quot;)</stringProp>
+            </JSR223PreProcessor>
+            <hashTree/>
+            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="valida Update">
+              <stringProp name="scriptLanguage">groovy</stringProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="cacheKey">true</stringProp>
+              <stringProp name="script">def response = prev.getResponseDataAsString()
+
+if (!response.contains(&quot;1 updates&quot;)) {
+    AssertionResult.setFailure(true)
+    AssertionResult.setFailureMessage(&quot;Falha no UPDATE. Response: &quot; + response)
+}</stringProp>
+            </JSR223PostProcessor>
+            <hashTree/>
+          </hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Executar_batch_ApuramentoParcelasEEHistorico">
+            <stringProp name="HTTPSampler.domain">${url_batch}</stringProp>
+            <stringProp name="HTTPSampler.port">${port_batch}</stringProp>
+            <stringProp name="HTTPSampler.path">/run-batch</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">{&#xd;
+    &quot;batch&quot;: &quot;ApuramentoParcelasEEHistorico&quot;,&#xd;
+    &quot;NISS_EE&quot;: &quot;${NISS_EE}&quot;,&#xd;
+    &quot;ANO_MES_REFERENCIA&quot;: &quot;${current_AnoMes}&quot;&#xd;
+}</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+          </HTTPSamplerProxy>
+          <hashTree/>
+          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="FALLBACK_DVENCONFEE20">
+            <stringProp name="dataSource">dbConnection</stringProp>
+            <stringProp name="query">UPDATE 
+GRS.PARAMETRO 
+set NUMERICO_1 = 20 
+WHERE CODIGO_PARAMETRO=&apos;DVENCONFEE&apos;</stringProp>
+            <stringProp name="queryArguments"></stringProp>
+            <stringProp name="queryArgumentsTypes"></stringProp>
+            <stringProp name="queryTimeout"></stringProp>
+            <stringProp name="queryType">Update Statement</stringProp>
+            <stringProp name="resultSetHandler">Store as String</stringProp>
+            <stringProp name="resultSetMaxRows"></stringProp>
+            <stringProp name="resultVariable"></stringProp>
+            <stringProp name="variableNames"></stringProp>
+          </JDBCSampler>
+          <hashTree>
+            <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Temporizador Constante">
+              <stringProp name="ConstantTimer.delay">2000</stringProp>
+            </ConstantTimer>
+            <hashTree/>
+          </hashTree>
+          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="CATCH_ID_ENTIDADE_EMPREGADORA">
+            <stringProp name="dataSource">dbConnection</stringProp>
+            <stringProp name="query">select ID_ENTIDADE_EMPREGADORA, NISS_EE 
+from eeaoc.entidade_empregadora  
+where niss_ee = ${NISS_EE}</stringProp>
+            <stringProp name="queryArguments"></stringProp>
+            <stringProp name="queryArgumentsTypes"></stringProp>
+            <stringProp name="queryTimeout"></stringProp>
+            <stringProp name="queryType">Select Statement</stringProp>
+            <stringProp name="resultSetHandler">Store as String</stringProp>
+            <stringProp name="resultSetMaxRows"></stringProp>
+            <stringProp name="resultVariable"></stringProp>
+            <stringProp name="variableNames">ID_ENTIDADE_EMPREGADORA, NISS_EE</stringProp>
+          </JDBCSampler>
+          <hashTree/>
+          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="VERIFICA_ DATA_FIM_PERIODO">
+            <stringProp name="dataSource">dbConnection</stringProp>
+            <stringProp name="query">SELECT ee.ID_ENTIDADE_EMPREGADORA, ee.NISS_EE, 
+       pc.ID_PERIODO_CONFIRMACAO, pc.DATA_INICIO_PERIODO, pc.DATA_FIM_PERIODO 
+FROM eeaoc.entidade_empregadora ee
+JOIN eeaoc.periodo_confirmacao pc
+  ON pc.ID_ENTIDADE_EMPREGADORA = ee.ID_ENTIDADE_EMPREGADORA
+WHERE pc.ID_ENTIDADE_EMPREGADORA = ${ID_ENTIDADE_EMPREGADORA_1}
+  AND EXTRACT(MONTH FROM pc.DATA_FIM_PERIODO) = ${current_MONTH}</stringProp>
+            <stringProp name="queryArguments"></stringProp>
+            <stringProp name="queryArgumentsTypes"></stringProp>
+            <stringProp name="queryTimeout"></stringProp>
+            <stringProp name="queryType">Select Statement</stringProp>
+            <stringProp name="resultSetHandler">Store as String</stringProp>
+            <stringProp name="resultSetMaxRows"></stringProp>
+            <stringProp name="resultVariable"></stringProp>
+            <stringProp name="variableNames">ID_ENTIDADE_EMPREGADORA, NISS_EE, ID_PERIODO_CONFIRMACAO, DATA_INICIO_PERIODO, DATA_FIM_PERIODO</stringProp>
+          </JDBCSampler>
+          <hashTree>
+            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="VALIDA DATA DIA UTIL">
+              <stringProp name="scriptLanguage">groovy</stringProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="cacheKey">true</stringProp>
+              <stringProp name="script">String dataBanco = vars.get(&quot;DATA_FIM_PERIODO_1&quot;)
+String dataEsperada = vars.get(&quot;DATA_RESULTADO&quot;)
+
+log.info(&quot;Data Banco: &quot; + dataBanco)
+log.info(&quot;Data Esperada: &quot; + dataEsperada)
+
+if (dataBanco == null || !dataBanco.contains(dataEsperada)) {
+
+    prev.setSuccessful(false)
+    prev.setResponseMessage(&quot;VALIDAÇÃO da DATA_FIM_PERIODO [FAIL]&quot;)
+    prev.setResponseCode(&quot;500&quot;)
+
+    log.error(&quot;VALIDAÇÃO da DATA_FIM_PERIODO [FAIL]&quot;)
+
+} else {
+
+    log.info(&quot;A DATA_FIM_PERIODO está correta.&quot;)
+    prev.setResponseMessage(&quot;VALIDAÇÃO da DATA_FIM_PERIODO [PASS]&quot;)
+}</stringProp>
+            </JSR223PostProcessor>
+            <hashTree/>
+          </hashTree>
+        </hashTree>
         <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="1. Verificar se temos confirmação para o mes vigente " enabled="false">
+          <boolProp name="TransactionController.parent">true</boolProp>
           <boolProp name="TransactionController.includeTimers">false</boolProp>
         </TransactionController>
         <hashTree>
@@ -494,7 +708,7 @@ on cee.ID_PERIODO_CONFIRMACAO = pc.ID_PERIODO_CONFIRMACAO
             <stringProp name="variableNames">ID_ENTIDADE_EMPREGADORA, ID_PERIODO_CONFIRMACAO, DATA_INICIO_PERIODO, DATA_FIM_PERIODO, ID_CONFIRMACAO_ENTIDADE_EMP</stringProp>
           </JDBCSampler>
           <hashTree>
-            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="Teste para saber se data bate" enabled="true">
+            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="Teste para saber se data bate">
               <stringProp name="cacheKey">true</stringProp>
               <stringProp name="filename"></stringProp>
               <stringProp name="parameters"></stringProp>
@@ -534,7 +748,7 @@ if (mesmoMes) {
             </JSR223PostProcessor>
             <hashTree/>
           </hashTree>
-          <IfController guiclass="IfControllerPanel" testclass="IfController" testname="DELETAR DADOS CASO EXISTAM">
+          <IfController guiclass="IfControllerPanel" testclass="IfController" testname="DELETAR DADOS CASO EXISTAM" enabled="true">
             <stringProp name="IfController.condition">${__groovy(vars.get(&quot;MES_CORRENTE&quot;) == &quot;true&quot;)}</stringProp>
             <boolProp name="IfController.evaluateAll">false</boolProp>
             <boolProp name="IfController.useExpression">true</boolProp>
@@ -573,7 +787,7 @@ WHERE cee.ID_PERIODO_CONFIRMACAO = ${ID_PERIODO_CONFIRMACAO_1}</stringProp>
             <hashTree/>
           </hashTree>
         </hashTree>
-        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="2. Validar que o sistema obtém o dia do parâetro DVENCONFEE e calcula corretamente a data limite no mês seguinte ao ano-mês de referência quando o dia resultante é útil." enabled="false">
+        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="2." enabled="false">
           <boolProp name="TransactionController.parent">true</boolProp>
           <boolProp name="TransactionController.includeTimers">true</boolProp>
         </TransactionController>
@@ -602,7 +816,7 @@ WHERE cee.ID_PERIODO_CONFIRMACAO = ${ID_PERIODO_CONFIRMACAO_1}</stringProp>
             </elementProp>
           </HTTPSamplerProxy>
           <hashTree>
-            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager">
               <collectionProp name="HeaderManager.headers">
                 <elementProp name="" elementType="Header">
                   <stringProp name="Header.name">authorization</stringProp>
@@ -611,7 +825,7 @@ WHERE cee.ID_PERIODO_CONFIRMACAO = ${ID_PERIODO_CONFIRMACAO_1}</stringProp>
               </collectionProp>
             </HeaderManager>
             <hashTree/>
-            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="TESTES_API_${__samplerName()}" enabled="true">
+            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="TESTES_API_${__samplerName()}">
               <stringProp name="scriptLanguage">groovy</stringProp>
               <stringProp name="parameters"></stringProp>
               <stringProp name="filename"></stringProp>
@@ -665,12 +879,12 @@ FETCH FIRST 1 ROWS ONLY</stringProp>
           </JDBCSampler>
           <hashTree/>
         </hashTree>
-        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="3. Validar que o sistema obtém o próximo dia útil quando a data limite calculada não corresponde a um dia útil. ">
+        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="3. Validar que o sistema obtém o próximo dia útil quando a data limite calculada não corresponde a um dia útil. " enabled="false">
           <boolProp name="TransactionController.parent">true</boolProp>
           <boolProp name="TransactionController.includeTimers">true</boolProp>
         </TransactionController>
         <hashTree>
-          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="UPDATE DE PERIDO">
+          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="UPDATE DE PERIDO" enabled="true">
             <stringProp name="dataSource">dbConnection</stringProp>
             <stringProp name="query">UPDATE GRS.PARAMETRO set NUMERICO_1 =  ${DIA_SABADO} WHERE p.CODIGO_PARAMETRO=&apos;DVENCONFEE&apos;</stringProp>
             <stringProp name="queryArguments"></stringProp>
@@ -707,7 +921,7 @@ log.info(&quot;Dia salvo: &quot; + dia)</stringProp>
             </JSR223PreProcessor>
             <hashTree/>
           </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Executar_batch_ApuramentoParcelasEEHistorico">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Executar_batch_ApuramentoParcelasEEHistorico" enabled="true">
             <stringProp name="HTTPSampler.domain">${url_batch}</stringProp>
             <stringProp name="HTTPSampler.port">${port_batch}</stringProp>
             <stringProp name="HTTPSampler.path">/run-batch</stringProp>
