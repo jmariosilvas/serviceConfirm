@@ -32,7 +32,7 @@
           </elementProp>
           <elementProp name="path" elementType="Argument">
             <stringProp name="Argument.name">path</stringProp>
-            <stringProp name="Argument.value">/eeaoc/rest/eeaoc/obrigacao-contributiva/entidade-empregadora/</stringProp>
+            <stringProp name="Argument.value">/eeaoc/rest/eeaoc/obrigacao-contributiva/entidade-empregadora</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="COUNTER" elementType="Argument">
@@ -57,7 +57,7 @@
           </elementProp>
           <elementProp name="delayCommit" elementType="Argument">
             <stringProp name="Argument.name">delayCommit</stringProp>
-            <stringProp name="Argument.value">4000</stringProp>
+            <stringProp name="Argument.value">2000</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="current_AnoMes" elementType="Argument">
@@ -70,10 +70,13 @@
             <stringProp name="Argument.value">${__time(MM,)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
+          <elementProp name="epoch" elementType="Argument">
+            <stringProp name="Argument.name">epoch</stringProp>
+            <stringProp name="Argument.value">${__time()}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
         </collectionProp>
       </elementProp>
-      <boolProp name="TestPlan.functional_mode">false</boolProp>
-      <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
     </TestPlan>
     <hashTree>
       <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="skip_Threads_sameTime_BD" enabled="false">
@@ -81,7 +84,7 @@
         <stringProp name="RandomTimer.range">1000</stringProp>
       </UniformRandomTimer>
       <hashTree/>
-      <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="util_PostProcessor" enabled="true">
+      <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="util_PostProcessor">
         <stringProp name="scriptLanguage">groovy</stringProp>
         <stringProp name="parameters"></stringProp>
         <stringProp name="filename"></stringProp>
@@ -107,38 +110,6 @@ def expectField = { fieldName -&gt;
 props.put(&quot;expectField&quot;, expectField)
 log.info(&quot;\n/nFunção expectField carregada e disponível globalmente.&quot;)</stringProp>
         <stringProp name="TestPlan.comments">EEAOC-5.36.1-SNAPSHOT</stringProp>
-      </JSR223PostProcessor>
-      <hashTree/>
-      <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="commonTeest" enabled="true">
-        <stringProp name="scriptLanguage">groovy</stringProp>
-        <stringProp name="parameters"></stringProp>
-        <stringProp name="filename"></stringProp>
-        <stringProp name="cacheKey">true</stringProp>
-        <stringProp name="script">import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy
-import groovy.json.JsonSlurper
-
-def sampler = ctx.getCurrentSampler()
-
-if (sampler instanceof HTTPSamplerProxy &amp;&amp; prev?.getURL()) {
-    def url = prev.getURL()
-    vars.put(&quot;requestUrlSalvo&quot;, url.toString())
-    if (url.getPath().toLowerCase().contains(&quot;v2&quot;)){ log.info(&quot;Testes sendo executados na v2&quot;)}
-
-
-	def response = prev.getResponseDataAsString()
-	if (!response) {
-	    log.warn(&quot;Response vazio&quot;)
-	    return
-	}
-	def json = new JsonSlurper().parseText(response)
-	if (json?.comprovativoEntrega) {
-	    vars.put(&quot;comprovativoEntrega&quot;, json.comprovativoEntrega.toString())
-	    log.info(&quot;valor retornado: ${vars.get(&quot;comprovativoEntrega&quot;)}&quot;)
-	} 
-   
-}
-
-</stringProp>
       </JSR223PostProcessor>
       <hashTree/>
       <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="interador" enabled="true">
@@ -197,6 +168,98 @@ if (sampler instanceof org.apache.jmeter.protocol.jdbc.sampler.JDBCSampler) {
         <stringProp name="scriptLanguage">groovy</stringProp>
       </JSR223PostProcessor>
       <hashTree/>
+      <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="COMMONPRUEBAS">
+        <stringProp name="cacheKey">true</stringProp>
+        <stringProp name="filename"></stringProp>
+        <stringProp name="parameters"></stringProp>
+        <stringProp name="script">
+import groovy.json.JsonSlurper
+def status = prev.getResponseCode()
+def body = prev.getResponseDataAsString()
+prev.setSuccessful(true)
+def requestFail(expected, actual) {
+    prev.setSuccessful(false) 
+    prev.setResponseMessage(&quot;Falha: Expected [${expected}], Returned [${actual}]&quot;)
+    log.error(&quot;Request marcada como falha: Expected=${expected}, Returned=${actual}&quot;)
+}
+
+def renomearCT(){
+	props.put(&quot;CT&quot;, ${__samplerName()})
+}
+
+if (props.get(&apos;NISSlength&apos;) == &quot;true&quot;) {
+	def json = new JsonSlurper().parseText(body)
+	def erros = []
+	if (status != &quot;400&quot;) 
+	{
+	    erros &lt;&lt; &quot;Status diferente de 400: &quot; + status
+	    log.error(&quot;\nStatus Code incorreto.&quot;)
+	    requestFail(400, status)
+	    
+	}
+	if (json.message != vars.get(&apos;nissFormatoInvalido&apos;)) 
+	{
+	    erros &lt;&lt; &quot;Mensagem inválida: &quot; + json.message
+	    log.error(&quot;\nMessage diferente da esperada.&quot;)
+	   requestFail(vars.get(&apos;nissFormatoInvalido&apos;), json.message)
+	}
+    props.put(&quot;NISSlength&quot;,&quot;false&quot;)
+
+}
+
+if (props.get(&apos;distinctNISS&apos;) == &quot;true&quot;) {
+	
+	def json = new JsonSlurper().parseText(body)
+	def erros = []
+	if (status != &quot;403&quot;) 
+	{
+	    erros &lt;&lt; &quot;Status diferente de 403: &quot; + status
+	    log.error(&quot;\nStatus Code incorreto.&quot;)
+	    requestFail(403, status)  
+	}
+	if (json.message != vars.get(&apos;msgDistinctNISS&apos;)) 
+	{
+	    erros &lt;&lt; &quot;Mensagem inválida: &quot; + json.message
+	    log.error(&quot;\nMessage diferente da esperada.&quot;)
+	   requestFail(vars.get(&apos;msgDistinctNISS&apos;), json.message)
+	}
+
+    props.put(&quot;distinctNISS&quot;,&quot;false&quot;)
+
+}
+
+//De momento ainda não é possivel
+//
+if (props.get(&apos;noRegistoPeriodoConfirmacao&apos;) == &quot;true&quot;) {
+	
+	def json = new JsonSlurper().parseText(body)
+	def erros = []
+	if (status != &quot;200&quot;) 
+	{
+	    erros &lt;&lt; &quot;Status diferente de 200: &quot; + status
+	    log.error(&quot;\nStatus Code incorreto.&quot;)
+	    requestFail(200, status)  
+	}
+	if (json.message != vars.get(&apos;msgNoRegistoPeriodoConfirmacao&apos;)) 
+	{
+	    erros &lt;&lt; &quot;Mensagem inválida: &quot; + json.message
+	    log.error(&quot;\nMessage diferente da esperada.&quot;)
+	   requestFail(vars.get(&apos;msgNoRegistoPeriodoConfirmacao&apos;), json.message)
+	}
+	if (json?.message == null) {
+	    erros &lt;&lt; &quot;Campo &apos;message&apos; não encontrado no response&quot;
+	    log.error(&quot;Campo &apos;message&apos; não existe no JSON de resposta.&quot;)
+	    requestFail(vars.get(&quot;msgNoRegistoPeriodoConfirmacao&quot;), &quot;NULL&quot;)
+	} 
+
+    props.put(&quot;noRegistoPeriodoConfirmacao&quot;,&quot;false&quot;)
+
+}
+
+</stringProp>
+        <stringProp name="scriptLanguage">groovy</stringProp>
+      </JSR223PostProcessor>
+      <hashTree/>
       <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="header Manager" enabled="true">
         <collectionProp name="HeaderManager.headers">
           <elementProp name="" elementType="Header">
@@ -214,7 +277,7 @@ if (sampler instanceof org.apache.jmeter.protocol.jdbc.sampler.JDBCSampler) {
         </collectionProp>
       </HeaderManager>
       <hashTree/>
-      <JDBCDataSource guiclass="TestBeanGUI" testclass="JDBCDataSource" testname="devConnection " enabled="true">
+      <JDBCDataSource guiclass="TestBeanGUI" testclass="JDBCDataSource" testname="devConnection ">
         <boolProp name="autocommit">true</boolProp>
         <stringProp name="checkQuery"></stringProp>
         <stringProp name="connectionAge">5000</stringProp>
@@ -233,7 +296,7 @@ if (sampler instanceof org.apache.jmeter.protocol.jdbc.sampler.JDBCSampler) {
         <stringProp name="username">idq</stringProp>
       </JDBCDataSource>
       <hashTree/>
-      <JDBCDataSource guiclass="TestBeanGUI" testclass="JDBCDataSource" testname="devGUS" enabled="true">
+      <JDBCDataSource guiclass="TestBeanGUI" testclass="JDBCDataSource" testname="devGUS">
         <boolProp name="autocommit">true</boolProp>
         <stringProp name="checkQuery"></stringProp>
         <stringProp name="connectionAge">5000</stringProp>
@@ -241,7 +304,7 @@ if (sampler instanceof org.apache.jmeter.protocol.jdbc.sampler.JDBCSampler) {
         <stringProp name="dataSource">devGUS</stringProp>
         <stringProp name="dbUrl">jdbc:oracle:thin:@//oklx1rac01-scan.seg-social.pt :1521/ptecdev.seg-social.pt</stringProp>
         <stringProp name="driver">oracle.jdbc.OracleDriver</stringProp>
-        <stringProp name="initQuery">SELECT SYSDATE FROM DUAL GUS_APPPWDPTEC</stringProp>
+        <stringProp name="initQuery"></stringProp>
         <boolProp name="keepAlive">true</boolProp>
         <stringProp name="password">GUS_APPPWDPTEC</stringProp>
         <stringProp name="poolMax">10</stringProp>
@@ -252,7 +315,7 @@ if (sampler instanceof org.apache.jmeter.protocol.jdbc.sampler.JDBCSampler) {
         <stringProp name="username">GUS_APP</stringProp>
       </JDBCDataSource>
       <hashTree/>
-      <JDBCDataSource guiclass="TestBeanGUI" testclass="JDBCDataSource" testname="pTEC" enabled="true">
+      <JDBCDataSource guiclass="TestBeanGUI" testclass="JDBCDataSource" testname="pTEC-batch">
         <boolProp name="autocommit">true</boolProp>
         <stringProp name="checkQuery"></stringProp>
         <stringProp name="connectionAge">5000</stringProp>
@@ -271,12 +334,37 @@ if (sampler instanceof org.apache.jmeter.protocol.jdbc.sampler.JDBCSampler) {
         <stringProp name="username">ptec</stringProp>
       </JDBCDataSource>
       <hashTree/>
+      <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="Messages">
+        <collectionProp name="Arguments.arguments">
+          <elementProp name="confirmacaoEfetuadaSucesso" elementType="Argument">
+            <stringProp name="Argument.name">confirmacaoEfetuadaSucesso</stringProp>
+            <stringProp name="Argument.value">Confirmação efetuada com sucesso.</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="nissFormatoInvalido" elementType="Argument">
+            <stringProp name="Argument.name">nissFormatoInvalido</stringProp>
+            <stringProp name="Argument.value">NISS entidade empregadora com formato inválido.</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="msgDistinctNISS" elementType="Argument">
+            <stringProp name="Argument.name">msgDistinctNISS</stringProp>
+            <stringProp name="Argument.value">O NISS autenticado não tem autorização de representação para a Entidade pretendida.</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="msgNoRegistoPeriodoConfirmacao" elementType="Argument">
+            <stringProp name="Argument.name">msgNoRegistoPeriodoConfirmacao</stringProp>
+            <stringProp name="Argument.value">De momento ainda não é possível confirmar, por favor tente mais tarde.</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+        </collectionProp>
+      </Arguments>
+      <hashTree/>
       <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="startGroovy" enabled="true">
         <stringProp name="cacheKey">true</stringProp>
         <stringProp name="filename"></stringProp>
         <stringProp name="parameters"></stringProp>
         <stringProp name="script">try {
-    log.info(&quot;Teste de inicialização do Groovy\n\nnIniciando a execução  dos testes!&quot;)
+    log.info(&quot;Teste de inicialização!&quot;)
 } catch (Exception e) {
     log.warn(&quot;Error detectado no Groovy. \nPode ser problem a com JAR ou drive de rede. Reiniciar o JMeter!&quot;)
 }
@@ -306,7 +394,7 @@ if (sampler instanceof HTTPSamplerProxy ) {
 }</stringProp>
       </JSR223PreProcessor>
       <hashTree/>
-      <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="catchLabelAcertov2" enabled="true">
+      <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="catchLabelAcertov2" enabled="false">
         <stringProp name="scriptLanguage">groovy</stringProp>
         <stringProp name="parameters"></stringProp>
         <stringProp name="filename"></stringProp>
@@ -379,7 +467,7 @@ if (sampler instanceof HTTPSamplerProxy) {
         <stringProp name="filename"></stringProp>
       </ResultCollector>
       <hashTree/>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="ORQUESTRADOR" enabled="true">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="ORQUESTRADOR">
         <intProp name="ThreadGroup.num_threads">1</intProp>
         <intProp name="ThreadGroup.ramp_time">1</intProp>
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
@@ -390,7 +478,7 @@ if (sampler instanceof HTTPSamplerProxy) {
         </elementProp>
       </ThreadGroup>
       <hashTree>
-        <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname=".ENV" enabled="true">
+        <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname=".ENV">
           <collectionProp name="Arguments.arguments">
             <elementProp name="NISS_EE" elementType="Argument">
               <stringProp name="Argument.name">NISS_EE</stringProp>
@@ -462,20 +550,19 @@ if (sampler instanceof HTTPSamplerProxy) {
               <stringProp name="Argument.value">localhost</stringProp>
               <stringProp name="Argument.metadata">=</stringProp>
             </elementProp>
-          </collectionProp>
-        </Arguments>
-        <hashTree/>
-        <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname=".ENV [message]" enabled="true">
-          <collectionProp name="Arguments.arguments">
-            <elementProp name="confirmacaoEfetuadaSucesso" elementType="Argument">
-              <stringProp name="Argument.name">confirmacaoEfetuadaSucesso</stringProp>
-              <stringProp name="Argument.value">Confirmação efetuada com sucesso.</stringProp>
+            <elementProp name="NISSnoRegistoPeriodoConfirmacao" elementType="Argument">
+              <stringProp name="Argument.name">NISSnoRegistoPeriodoConfirmacao</stringProp>
+              <stringProp name="Argument.value">10070159995</stringProp>
               <stringProp name="Argument.metadata">=</stringProp>
             </elementProp>
           </collectionProp>
         </Arguments>
         <hashTree/>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="version_webApp">
+        <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="DATA_NISS_EE">
+          <collectionProp name="Arguments.arguments"/>
+        </Arguments>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="version_webApp" enabled="true">
           <stringProp name="HTTPSampler.domain">devapp.seg-social.pt</stringProp>
           <stringProp name="HTTPSampler.port">443</stringProp>
           <stringProp name="HTTPSampler.protocol">https</stringProp>
@@ -500,12 +587,770 @@ if (sampler instanceof HTTPSamplerProxy) {
           </RegexExtractor>
           <hashTree/>
         </hashTree>
+        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="EEAOC-975: Validar execução do serviço ConfirmarValoresObrigacaoContributiva com o campo niss-ee com menos de 11 dígitos" enabled="false">
+          <boolProp name="TransactionController.parent">true</boolProp>
+          <boolProp name="TransactionController.includeTimers">false</boolProp>
+        </TransactionController>
+        <hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="EEAOC-975" enabled="true">
+            <stringProp name="HTTPSampler.domain">${base_url}</stringProp>
+            <stringProp name="HTTPSampler.port">443</stringProp>
+            <stringProp name="HTTPSampler.protocol">https</stringProp>
+            <stringProp name="HTTPSampler.path">${path}/1111111111/confirmar</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">{&#xd;
+    &quot;buildVersion&quot;: &quot;${versaoApp}&quot;,&#xd;
+    &quot;CT&quot;: &quot;${__samplerName()}&quot;&#xd;
+ &#xd;
+}</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">authorization</stringProp>
+                  <stringProp name="Header.value">Basic MjAwMDQwODA1NjY6VGVzdGVzcG9ydG8hMQ==</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+            <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="JSR223 PreProcessor" enabled="true">
+              <stringProp name="scriptLanguage">groovy</stringProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="cacheKey">true</stringProp>
+              <stringProp name="script">props.put(&quot;NISSlength&quot;, &quot;true&quot;)
+</stringProp>
+            </JSR223PreProcessor>
+            <hashTree/>
+            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="saveName" enabled="true">
+              <stringProp name="scriptLanguage">groovy</stringProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="cacheKey">true</stringProp>
+              <stringProp name="script">vars.put(&quot;CT&quot;, &quot;${__samplerName()}&quot;)</stringProp>
+            </JSR223PostProcessor>
+            <hashTree/>
+          </hashTree>
+          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="GUS.SERVICE_AUDIT_RESPONSE | GUS.SERVICE_AUDIT " enabled="true">
+            <stringProp name="dataSource">devGUS</stringProp>
+            <stringProp name="query">SELECT sur.*, sa.*
+FROM GUS.SERVICE_AUDIT_RESPONSE sur
+INNER JOIN GUS.SERVICE_AUDIT sa
+    ON sur.ID_SERVICE_AUDIT_RESPONSE = sa.ID_SERVICE_AUDIT
+WHERE sur.METADATA_RESPONSE LIKE &apos;%who(${NISS_EE})%&apos;
+  AND sur.METADATA_RESPONSE LIKE &apos;%what(EEAO-O066)%&apos;
+  AND sa.request LIKE &apos;%${CT}%&apos;
+ORDER BY sur.ID_SERVICE_AUDIT_RESPONSE DESC
+FETCH FIRST 1 ROWS ONLY</stringProp>
+            <stringProp name="queryArguments"></stringProp>
+            <stringProp name="queryArgumentsTypes"></stringProp>
+            <stringProp name="queryTimeout"></stringProp>
+            <stringProp name="queryType">Select Statement</stringProp>
+            <stringProp name="resultSetHandler">Store as String</stringProp>
+            <stringProp name="resultSetMaxRows"></stringProp>
+            <stringProp name="resultVariable"></stringProp>
+            <stringProp name="variableNames">ID_SERVICE_AUDIT_RESPONSE, RESPONSE_DATE, RESPONSE, METADATA_RESPONSE, ID_SERVICE_AUDIT, CLIENT_IP, CLIENT_PORT, SERVICE, SERVICE_USER, REQUEST_DATE, REQUEST, METADATA, CONSUMER</stringProp>
+          </JDBCSampler>
+          <hashTree>
+            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="hasData" enabled="true">
+              <stringProp name="scriptLanguage">groovy</stringProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="cacheKey">true</stringProp>
+              <stringProp name="script">def hasCount = vars.get(&quot;ID_SERVICE_AUDIT_RESPONSE_#&quot;)?.trim()?.toInteger() ?: 0
+def ok = (hasCount &gt;= 1)
+
+prev.setSuccessful(ok)
+
+def msg = ok 
+    ? &quot;QUANTIDADE DE CANDITADOS: ${NISS_EE_1}&quot; 
+    : &quot;[AVISO] NÃO TROUXE REGISTROS: ${hasCount}&quot;
+
+prev.setResponseMessage(msg)
+(ok ? log.info(msg) : log.error(msg))</stringProp>
+            </JSR223PostProcessor>
+            <hashTree/>
+          </hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="EEAOC-975" enabled="true">
+            <stringProp name="HTTPSampler.domain">${base_url}</stringProp>
+            <stringProp name="HTTPSampler.port">443</stringProp>
+            <stringProp name="HTTPSampler.protocol">https</stringProp>
+            <stringProp name="HTTPSampler.path">${path}/1/confirmar</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">{&#xd;
+    &quot;buildVersion&quot;: &quot;${versaoApp}&quot;,&#xd;
+    &quot;CT&quot;: &quot;${__samplerName()}&quot;&#xd;
+ &#xd;
+}</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">authorization</stringProp>
+                  <stringProp name="Header.value">Basic MjAwMDQwODA1NjY6VGVzdGVzcG9ydG8hMQ==</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+            <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="JSR223 PreProcessor" enabled="true">
+              <stringProp name="scriptLanguage">groovy</stringProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="cacheKey">true</stringProp>
+              <stringProp name="script">props.put(&quot;NISSlength&quot;, &quot;true&quot;)
+</stringProp>
+            </JSR223PreProcessor>
+            <hashTree/>
+            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="saveName" enabled="true">
+              <stringProp name="scriptLanguage">groovy</stringProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="cacheKey">true</stringProp>
+              <stringProp name="script">vars.put(&quot;CT&quot;, &quot;${__samplerName()}&quot;)</stringProp>
+            </JSR223PostProcessor>
+            <hashTree/>
+          </hashTree>
+          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="GUS.SERVICE_AUDIT_RESPONSE | GUS.SERVICE_AUDIT " enabled="true">
+            <stringProp name="dataSource">devGUS</stringProp>
+            <stringProp name="query">SELECT sur.*, sa.*
+FROM GUS.SERVICE_AUDIT_RESPONSE sur
+INNER JOIN GUS.SERVICE_AUDIT sa
+    ON sur.ID_SERVICE_AUDIT_RESPONSE = sa.ID_SERVICE_AUDIT
+WHERE sur.METADATA_RESPONSE LIKE &apos;%who(${NISS_EE})%&apos;
+  AND sur.METADATA_RESPONSE LIKE &apos;%what(EEAO-O066)%&apos;
+  AND sa.request LIKE &apos;%${CT}%&apos;
+ORDER BY sur.ID_SERVICE_AUDIT_RESPONSE DESC
+FETCH FIRST 1 ROWS ONLY</stringProp>
+            <stringProp name="queryArguments"></stringProp>
+            <stringProp name="queryArgumentsTypes"></stringProp>
+            <stringProp name="queryTimeout"></stringProp>
+            <stringProp name="queryType">Select Statement</stringProp>
+            <stringProp name="resultSetHandler">Store as String</stringProp>
+            <stringProp name="resultSetMaxRows"></stringProp>
+            <stringProp name="resultVariable"></stringProp>
+            <stringProp name="variableNames">ID_SERVICE_AUDIT_RESPONSE, RESPONSE_DATE, RESPONSE, METADATA_RESPONSE, ID_SERVICE_AUDIT, CLIENT_IP, CLIENT_PORT, SERVICE, SERVICE_USER, REQUEST_DATE, REQUEST, METADATA, CONSUMER</stringProp>
+          </JDBCSampler>
+          <hashTree>
+            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="hasData">
+              <stringProp name="scriptLanguage">groovy</stringProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="cacheKey">true</stringProp>
+              <stringProp name="script">def hasCount = vars.get(&quot;ID_SERVICE_AUDIT_RESPONSE_#&quot;)?.trim()?.toInteger() ?: 0
+def ok = (hasCount &gt;= 1)
+
+prev.setSuccessful(ok)
+
+def msg = ok 
+    ? &quot;QUANTIDADE DE CANDITADOS: ${NISS_EE_1}&quot; 
+    : &quot;[AVISO] NÃO TROUXE REGISTROS: ${hasCount}&quot;
+
+prev.setResponseMessage(msg)
+(ok ? log.info(msg) : log.error(msg))</stringProp>
+            </JSR223PostProcessor>
+            <hashTree/>
+          </hashTree>
+        </hashTree>
+        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="EEAOC-977 Validar execução do serviço ConfirmarValoresObrigacaoContributiva com o campo niss-ee com mais de 11 dígitos" enabled="false">
+          <boolProp name="TransactionController.parent">true</boolProp>
+          <boolProp name="TransactionController.includeTimers">false</boolProp>
+        </TransactionController>
+        <hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="EEAOC-977" enabled="true">
+            <stringProp name="HTTPSampler.domain">${base_url}</stringProp>
+            <stringProp name="HTTPSampler.port">443</stringProp>
+            <stringProp name="HTTPSampler.protocol">https</stringProp>
+            <stringProp name="HTTPSampler.path">${path}/222222222222/confirmar</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">{&#xd;
+    &quot;buildVersion&quot;: &quot;${versaoApp}&quot;,&#xd;
+    &quot;CT&quot;: &quot;${__samplerName()}&quot;&#xd;
+ &#xd;
+}</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">authorization</stringProp>
+                  <stringProp name="Header.value">Basic MjAwMDQwODA1NjY6VGVzdGVzcG9ydG8hMQ==</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+            <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="JSR223 PreProcessor" enabled="true">
+              <stringProp name="scriptLanguage">groovy</stringProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="cacheKey">true</stringProp>
+              <stringProp name="script">props.put(&quot;NISSlength&quot;, &quot;true&quot;)
+</stringProp>
+            </JSR223PreProcessor>
+            <hashTree/>
+            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="saveName" enabled="true">
+              <stringProp name="scriptLanguage">groovy</stringProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="cacheKey">true</stringProp>
+              <stringProp name="script">vars.put(&quot;CT&quot;, &quot;${__samplerName()}&quot;)</stringProp>
+            </JSR223PostProcessor>
+            <hashTree/>
+          </hashTree>
+          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="GUS.SERVICE_AUDIT_RESPONSE | GUS.SERVICE_AUDIT " enabled="true">
+            <stringProp name="dataSource">gus</stringProp>
+            <stringProp name="query">SELECT sur.RESPONSE, sa.*
+FROM GUS.SERVICE_AUDIT_RESPONSE sur
+INNER JOIN GUS.SERVICE_AUDIT sa
+    ON sur.ID_SERVICE_AUDIT_RESPONSE = sa.ID_SERVICE_AUDIT
+WHERE sur.METADATA_RESPONSE LIKE &apos;%who(${NISS_EE})%&apos;
+  AND sur.METADATA_RESPONSE LIKE &apos;%what(EEAO-O066)%&apos;
+  AND sa.request LIKE &apos;%${CT}%&apos;
+ORDER BY sur.ID_SERVICE_AUDIT_RESPONSE DESC
+FETCH FIRST 1 ROWS ONLY</stringProp>
+            <stringProp name="queryArguments"></stringProp>
+            <stringProp name="queryArgumentsTypes"></stringProp>
+            <stringProp name="queryTimeout"></stringProp>
+            <stringProp name="queryType">Select Statement</stringProp>
+            <stringProp name="resultSetHandler">Store as String</stringProp>
+            <stringProp name="resultSetMaxRows"></stringProp>
+            <stringProp name="resultVariable"></stringProp>
+            <stringProp name="variableNames">RESPONSE, ID_SERVICE_AUDIT, CLIENT_IP, CLIENT_PORT, SERVICE, SERVICE_USER, REQUEST_DATE, REQUEST, METADATA, CONSUMER</stringProp>
+          </JDBCSampler>
+          <hashTree>
+            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="hasData" enabled="false">
+              <stringProp name="scriptLanguage">groovy</stringProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="cacheKey">true</stringProp>
+              <stringProp name="script">def hasCount = vars.get(&quot;ID_SERVICE_AUDIT_RESPONSE_#&quot;)?.trim()?.toInteger() ?: 0
+def ok = (hasCount &gt;= 1)
+
+prev.setSuccessful(ok)
+
+def msg = ok 
+    ? &quot;QUANTIDADE DE CANDITADOS: ${NISS_EE_1}&quot; 
+    : &quot;[AVISO] NÃO TROUXE REGISTROS: ${hasCount}&quot;
+
+prev.setResponseMessage(msg)
+(ok ? log.info(msg) : log.error(msg))</stringProp>
+            </JSR223PostProcessor>
+            <hashTree/>
+          </hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="EEAOC-977b" enabled="true">
+            <stringProp name="HTTPSampler.domain">${base_url}</stringProp>
+            <stringProp name="HTTPSampler.port">443</stringProp>
+            <stringProp name="HTTPSampler.protocol">https</stringProp>
+            <stringProp name="HTTPSampler.path">${path}/1111112222222222222/confirmar</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">{&#xd;
+    &quot;buildVersion&quot;: &quot;${versaoApp}&quot;,&#xd;
+    &quot;CT&quot;: &quot;${__samplerName()}&quot;&#xd;
+ &#xd;
+}</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">authorization</stringProp>
+                  <stringProp name="Header.value">Basic MjAwMDQwODA1NjY6VGVzdGVzcG9ydG8hMQ==</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+            <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="JSR223 PreProcessor" enabled="true">
+              <stringProp name="scriptLanguage">groovy</stringProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="cacheKey">true</stringProp>
+              <stringProp name="script">props.put(&quot;NISSlength&quot;, &quot;true&quot;)
+</stringProp>
+            </JSR223PreProcessor>
+            <hashTree/>
+            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="saveName" enabled="true">
+              <stringProp name="scriptLanguage">groovy</stringProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="cacheKey">true</stringProp>
+              <stringProp name="script">vars.put(&quot;CT&quot;, &quot;${__samplerName()}&quot;)</stringProp>
+            </JSR223PostProcessor>
+            <hashTree/>
+          </hashTree>
+          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="GUS.SERVICE_AUDIT_RESPONSE | GUS.SERVICE_AUDIT " enabled="true">
+            <stringProp name="dataSource">devGUS</stringProp>
+            <stringProp name="query">SELECT sur.*, sa.*
+FROM GUS.SERVICE_AUDIT_RESPONSE sur
+INNER JOIN GUS.SERVICE_AUDIT sa
+    ON sur.ID_SERVICE_AUDIT_RESPONSE = sa.ID_SERVICE_AUDIT
+WHERE sur.METADATA_RESPONSE LIKE &apos;%who(${NISS_EE})%&apos;
+  AND sur.METADATA_RESPONSE LIKE &apos;%what(EEAO-O066)%&apos;
+  AND sa.request LIKE &apos;%${CT}%&apos;
+ORDER BY sur.ID_SERVICE_AUDIT_RESPONSE DESC
+FETCH FIRST 1 ROWS ONLY</stringProp>
+            <stringProp name="queryArguments"></stringProp>
+            <stringProp name="queryArgumentsTypes"></stringProp>
+            <stringProp name="queryTimeout"></stringProp>
+            <stringProp name="queryType">Select Statement</stringProp>
+            <stringProp name="resultSetHandler">Store as String</stringProp>
+            <stringProp name="resultSetMaxRows"></stringProp>
+            <stringProp name="resultVariable"></stringProp>
+            <stringProp name="variableNames">ID_SERVICE_AUDIT_RESPONSE, RESPONSE_DATE, RESPONSE, METADATA_RESPONSE, ID_SERVICE_AUDIT, CLIENT_IP, CLIENT_PORT, SERVICE, SERVICE_USER, REQUEST_DATE, REQUEST, METADATA, CONSUMER</stringProp>
+          </JDBCSampler>
+          <hashTree>
+            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="hasData" enabled="true">
+              <stringProp name="scriptLanguage">groovy</stringProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="cacheKey">true</stringProp>
+              <stringProp name="script">def hasCount = vars.get(&quot;ID_SERVICE_AUDIT_RESPONSE_#&quot;)?.trim()?.toInteger() ?: 0
+def ok = (hasCount &gt;= 1)
+
+prev.setSuccessful(ok)
+
+def msg = ok 
+    ? &quot;QUANTIDADE DE CANDITADOS: ${NISS_EE_1}&quot; 
+    : &quot;[AVISO] NÃO TROUXE REGISTROS: ${hasCount}&quot;
+
+prev.setResponseMessage(msg)
+(ok ? log.info(msg) : log.error(msg))</stringProp>
+            </JSR223PostProcessor>
+            <hashTree/>
+          </hashTree>
+        </hashTree>
+        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="EEAOC-978: Validar execução do serviço ConfirmarValoresObrigacaoContributiva com o campo niss-ee preenchido diferente do niss de login (niss sem representação)" enabled="false">
+          <boolProp name="TransactionController.parent">true</boolProp>
+          <boolProp name="TransactionController.includeTimers">false</boolProp>
+        </TransactionController>
+        <hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="EEAOC-978">
+            <stringProp name="HTTPSampler.domain">${base_url}</stringProp>
+            <stringProp name="HTTPSampler.port">443</stringProp>
+            <stringProp name="HTTPSampler.protocol">https</stringProp>
+            <stringProp name="HTTPSampler.path">${path}/22222222222/confirmar</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">{&#xd;
+    &quot;buildVersion&quot;: &quot;${versaoApp}&quot;,&#xd;
+    &quot;CT&quot;: &quot;${__samplerName()}&quot;&#xd;
+ &#xd;
+}</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">authorization</stringProp>
+                  <stringProp name="Header.value">Basic MjAwMDQwODA1NjY6VGVzdGVzcG9ydG8hMQ==</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+            <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="JSR223 PreProcessor">
+              <stringProp name="scriptLanguage">groovy</stringProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="cacheKey">true</stringProp>
+              <stringProp name="script">props.put(&quot;distinctNISS&quot;, &quot;true&quot;)
+</stringProp>
+            </JSR223PreProcessor>
+            <hashTree/>
+            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="saveName">
+              <stringProp name="scriptLanguage">groovy</stringProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="cacheKey">true</stringProp>
+              <stringProp name="script">vars.put(&quot;CT&quot;, &quot;${__samplerName()}&quot;)</stringProp>
+            </JSR223PostProcessor>
+            <hashTree/>
+          </hashTree>
+          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="GUS.SERVICE_AUDIT_RESPONSE | GUS.SERVICE_AUDIT ">
+            <stringProp name="dataSource">devGUS</stringProp>
+            <stringProp name="query">SELECT 
+    sur.ID_SERVICE_AUDIT_RESPONSE,
+    sur.RESPONSE_DATE,
+    DBMS_LOB.SUBSTR(sur.RESPONSE, 4000, 1) AS RESPONSE,
+    sur.METADATA_RESPONSE,
+    sa.*
+FROM GUS.SERVICE_AUDIT_RESPONSE sur
+INNER JOIN GUS.SERVICE_AUDIT sa
+    ON sur.ID_SERVICE_AUDIT_RESPONSE = sa.ID_SERVICE_AUDIT
+WHERE sur.METADATA_RESPONSE LIKE &apos;%who(${NISS_EE})%&apos;
+  AND sur.METADATA_RESPONSE LIKE &apos;%what(EEAO-O066)%&apos;
+  AND DBMS_LOB.SUBSTR(sa.REQUEST, 4000, 1) LIKE &apos;%${CT}%&apos;
+ORDER BY sur.ID_SERVICE_AUDIT_RESPONSE DESC
+FETCH FIRST 1 ROWS ONLY</stringProp>
+            <stringProp name="queryArguments"></stringProp>
+            <stringProp name="queryArgumentsTypes"></stringProp>
+            <stringProp name="queryTimeout"></stringProp>
+            <stringProp name="queryType">Select Statement</stringProp>
+            <stringProp name="resultSetHandler">Store as String</stringProp>
+            <stringProp name="resultSetMaxRows"></stringProp>
+            <stringProp name="resultVariable"></stringProp>
+            <stringProp name="variableNames">ID_SERVICE_AUDIT_RESPONSE, RESPONSE_DATE, RESPONSE, METADATA_RESPONSE, ID_SERVICE_AUDIT, CLIENT_IP, CLIENT_PORT, SERVICE, SERVICE_USER, REQUEST_DATE, REQUEST, METADATA, CONSUMER</stringProp>
+          </JDBCSampler>
+          <hashTree>
+            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="hastData_978">
+              <stringProp name="scriptLanguage">groovy</stringProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="cacheKey">true</stringProp>
+              <stringProp name="script">def response = vars.get(&quot;RESPONSE_1&quot;)
+log.info(&quot;valor de resposnse : \n${response}&quot;)
+
+if (response == null || !response.contains(&quot;403&quot;)) {
+    prev.setSuccessful(false) 
+    prev.setResponseMessage(&quot;Response não contém código 403&quot;)
+    log.error(&quot;Response não contem código 403&quot;)
+}
+else</stringProp>
+            </JSR223PostProcessor>
+            <hashTree/>
+          </hashTree>
+        </hashTree>
+        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="EEAOC-979: Validar execução do serviço ConfirmarValoresObrigacaoContributiva sem registo na tabela periodo_confirmacao (niss auto representado)" enabled="false">
+          <boolProp name="TransactionController.parent">true</boolProp>
+          <boolProp name="TransactionController.includeTimers">false</boolProp>
+        </TransactionController>
+        <hashTree>
+          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="entidade_empregadora JOIN PERIODO_CONFIRMACAO ">
+            <stringProp name="dataSource">dbConnection</stringProp>
+            <stringProp name="query">SELECT ee.ID_ENTIDADE_EMPREGADORA, ee.NISS_EE,
+pc.*
+FROM  eeaoc.entidade_empregadora ee
+JOIN EEAOC.PERIODO_CONFIRMACAO pc
+ON pc.ID_ENTIDADE_EMPREGADORA = ee.ID_ENTIDADE_EMPREGADORA
+where ee.niss_ee = 10070159995</stringProp>
+            <stringProp name="queryArguments"></stringProp>
+            <stringProp name="queryArgumentsTypes"></stringProp>
+            <stringProp name="queryTimeout"></stringProp>
+            <stringProp name="queryType">Select Statement</stringProp>
+            <stringProp name="resultSetHandler">Store as String</stringProp>
+            <stringProp name="resultSetMaxRows"></stringProp>
+            <stringProp name="resultVariable"></stringProp>
+            <stringProp name="variableNames">ID_ENTIDADE_EMPREGADORA, NISS_EE, ID_PERIODO_CONFIRMACAO, DATA_INICIO_PERIODO, DATA_FIM_PERIODO, NISS_CONFIRMACAO, DATA_CONFIRMACAO, DATA_ENVIO_INDICIO</stringProp>
+          </JDBCSampler>
+          <hashTree>
+            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="hastData_979">
+              <stringProp name="scriptLanguage">groovy</stringProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="cacheKey">true</stringProp>
+              <stringProp name="script">def response = vars.get(&quot;ID_ENTIDADE_EMPREGADORA_#&quot;)
+
+
+def msgErro = &quot;[ATENCAO] O NISS_EE possui registo na tabela periodo_confirmacao, utilize outro, ou delete os dados..&quot;;
+
+if (response.toInteger() &gt;= 1 ) {
+    prev.setSuccessful(false) 
+    prev.setResponseMessage(msgErro)
+    log.error(msgErro)
+}
+</stringProp>
+            </JSR223PostProcessor>
+            <hashTree/>
+          </hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="EEAOC-979-${epoch}">
+            <stringProp name="HTTPSampler.domain">${base_url}</stringProp>
+            <stringProp name="HTTPSampler.port">443</stringProp>
+            <stringProp name="HTTPSampler.protocol">https</stringProp>
+            <stringProp name="HTTPSampler.path">${path}/${NISSnoRegistoPeriodoConfirmacao}/confirmar</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">{&#xd;
+    &quot;buildVersion&quot;: &quot;${versaoApp}&quot;,&#xd;
+    &quot;CT&quot;: &quot;${__samplerName()}&quot;&#xd;
+ &#xd;
+}</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HEADER10070159995">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">authorization</stringProp>
+                  <stringProp name="Header.value">Basic MTAwNzAxNTk5OTU6VGVzdGVzcG9ydG8hMQ==</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+            <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="noRegistoPeriodoConfirmacao">
+              <stringProp name="scriptLanguage">groovy</stringProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="cacheKey">true</stringProp>
+              <stringProp name="script">props.put(&quot;noRegistoPeriodoConfirmacao&quot;, &quot;true&quot;)
+</stringProp>
+            </JSR223PreProcessor>
+            <hashTree/>
+            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="saveName">
+              <stringProp name="scriptLanguage">groovy</stringProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="cacheKey">true</stringProp>
+              <stringProp name="script">vars.put(&quot;CT&quot;, &quot;${__samplerName()}&quot;)</stringProp>
+            </JSR223PostProcessor>
+            <hashTree/>
+          </hashTree>
+          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="GUS.SERVICE_AUDIT_RESPONSE | GUS.SERVICE_AUDIT ">
+            <stringProp name="dataSource">devGUS</stringProp>
+            <stringProp name="query">SELECT 
+    sur.ID_SERVICE_AUDIT_RESPONSE,
+    sur.RESPONSE_DATE,
+    DBMS_LOB.SUBSTR(sur.RESPONSE, 3000, 1) AS RESPONSE,
+    sur.METADATA_RESPONSE,
+    sa.*
+FROM GUS.SERVICE_AUDIT_RESPONSE sur
+INNER JOIN GUS.SERVICE_AUDIT sa
+    ON sur.ID_SERVICE_AUDIT_RESPONSE = sa.ID_SERVICE_AUDIT
+WHERE sur.METADATA_RESPONSE LIKE &apos;%who(${NISSnoRegistoPeriodoConfirmacao})%&apos;
+  AND sur.METADATA_RESPONSE LIKE &apos;%what(EEAO-O066)%&apos;
+  AND DBMS_LOB.SUBSTR(sa.REQUEST, 3000, 1) LIKE &apos;%${CT}%&apos;
+ORDER BY sur.ID_SERVICE_AUDIT_RESPONSE DESC
+FETCH FIRST 1 ROWS ONLY</stringProp>
+            <stringProp name="queryArguments"></stringProp>
+            <stringProp name="queryArgumentsTypes"></stringProp>
+            <stringProp name="queryTimeout"></stringProp>
+            <stringProp name="queryType">Select Statement</stringProp>
+            <stringProp name="resultSetHandler">Store as String</stringProp>
+            <stringProp name="resultSetMaxRows"></stringProp>
+            <stringProp name="resultVariable"></stringProp>
+            <stringProp name="variableNames">ID_SERVICE_AUDIT_RESPONSE, RESPONSE_DATE, RESPONSE, METADATA_RESPONSE, ID_SERVICE_AUDIT, CLIENT_IP, CLIENT_PORT, SERVICE, SERVICE_USER, REQUEST_DATE, REQUEST, METADATA, CONSUMER</stringProp>
+          </JDBCSampler>
+          <hashTree>
+            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="hastData_979">
+              <stringProp name="scriptLanguage">groovy</stringProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="cacheKey">true</stringProp>
+              <stringProp name="script">def response = vars.get(&quot;RESPONSE_1&quot;)
+log.info(&quot;valor de resposnse : \n${response}&quot;)
+
+if (response == null || !response.contains(&quot;200&quot;)) {
+    prev.setSuccessful(false) 
+    prev.setResponseMessage(&quot;Response não contém código 200&quot;)
+    log.error(&quot;Response não contem código 200&quot;)
+}
+</stringProp>
+            </JSR223PostProcessor>
+            <hashTree/>
+            <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Temporizador Constante">
+              <stringProp name="ConstantTimer.delay">${delayCommit}</stringProp>
+            </ConstantTimer>
+            <hashTree/>
+          </hashTree>
+        </hashTree>
+        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="EEAOC-980 Validar execução do serviço ConfirmarValoresObrigacaoContributiva com registos - com registo na intencao_doc_pagamento - (niss auto representado)">
+          <boolProp name="TransactionController.parent">true</boolProp>
+          <boolProp name="TransactionController.includeTimers">false</boolProp>
+        </TransactionController>
+        <hashTree>
+          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="entidade_empregadora JOIN PERIODO_CONFIRMACAO ">
+            <stringProp name="dataSource">dbConnection</stringProp>
+            <stringProp name="query">SELECT ee.ID_ENTIDADE_EMPREGADORA, ee.NISS_EE,
+pc.*
+FROM  eeaoc.entidade_empregadora ee
+JOIN EEAOC.PERIODO_CONFIRMACAO pc
+ON pc.ID_ENTIDADE_EMPREGADORA = ee.ID_ENTIDADE_EMPREGADORA
+where ee.niss_ee = 10070159995</stringProp>
+            <stringProp name="queryArguments"></stringProp>
+            <stringProp name="queryArgumentsTypes"></stringProp>
+            <stringProp name="queryTimeout"></stringProp>
+            <stringProp name="queryType">Select Statement</stringProp>
+            <stringProp name="resultSetHandler">Store as String</stringProp>
+            <stringProp name="resultSetMaxRows"></stringProp>
+            <stringProp name="resultVariable"></stringProp>
+            <stringProp name="variableNames">ID_ENTIDADE_EMPREGADORA, NISS_EE, ID_PERIODO_CONFIRMACAO, DATA_INICIO_PERIODO, DATA_FIM_PERIODO, NISS_CONFIRMACAO, DATA_CONFIRMACAO, DATA_ENVIO_INDICIO</stringProp>
+          </JDBCSampler>
+          <hashTree>
+            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="hastData_979">
+              <stringProp name="scriptLanguage">groovy</stringProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="cacheKey">true</stringProp>
+              <stringProp name="script">def response = vars.get(&quot;ID_ENTIDADE_EMPREGADORA_#&quot;)
+
+
+def msgErro = &quot;[ATENCAO] O NISS_EE possui registo na tabela periodo_confirmacao, utilize outro, ou delete os dados..&quot;;
+
+if (response.toInteger() &gt;= 1 ) {
+    prev.setSuccessful(false) 
+    prev.setResponseMessage(msgErro)
+    log.error(msgErro)
+}
+</stringProp>
+            </JSR223PostProcessor>
+            <hashTree/>
+          </hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="EEAOC-979-${epoch}">
+            <stringProp name="HTTPSampler.domain">${base_url}</stringProp>
+            <stringProp name="HTTPSampler.port">443</stringProp>
+            <stringProp name="HTTPSampler.protocol">https</stringProp>
+            <stringProp name="HTTPSampler.path">${path}/${NISSnoRegistoPeriodoConfirmacao}/confirmar</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">{&#xd;
+    &quot;buildVersion&quot;: &quot;${versaoApp}&quot;,&#xd;
+    &quot;CT&quot;: &quot;${__samplerName()}&quot;&#xd;
+ &#xd;
+}</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HEADER10070159995">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">authorization</stringProp>
+                  <stringProp name="Header.value">Basic MTAwNzAxNTk5OTU6VGVzdGVzcG9ydG8hMQ==</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+            <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="noRegistoPeriodoConfirmacao">
+              <stringProp name="scriptLanguage">groovy</stringProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="cacheKey">true</stringProp>
+              <stringProp name="script">props.put(&quot;noRegistoPeriodoConfirmacao&quot;, &quot;true&quot;)
+</stringProp>
+            </JSR223PreProcessor>
+            <hashTree/>
+            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="saveName">
+              <stringProp name="scriptLanguage">groovy</stringProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="cacheKey">true</stringProp>
+              <stringProp name="script">vars.put(&quot;CT&quot;, &quot;${__samplerName()}&quot;)</stringProp>
+            </JSR223PostProcessor>
+            <hashTree/>
+          </hashTree>
+          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="GUS.SERVICE_AUDIT_RESPONSE | GUS.SERVICE_AUDIT ">
+            <stringProp name="dataSource">devGUS</stringProp>
+            <stringProp name="query">SELECT 
+    sur.ID_SERVICE_AUDIT_RESPONSE,
+    sur.RESPONSE_DATE,
+    DBMS_LOB.SUBSTR(sur.RESPONSE, 3000, 1) AS RESPONSE,
+    sur.METADATA_RESPONSE,
+    sa.*
+FROM GUS.SERVICE_AUDIT_RESPONSE sur
+INNER JOIN GUS.SERVICE_AUDIT sa
+    ON sur.ID_SERVICE_AUDIT_RESPONSE = sa.ID_SERVICE_AUDIT
+WHERE sur.METADATA_RESPONSE LIKE &apos;%who(${NISSnoRegistoPeriodoConfirmacao})%&apos;
+  AND sur.METADATA_RESPONSE LIKE &apos;%what(EEAO-O066)%&apos;
+  AND DBMS_LOB.SUBSTR(sa.REQUEST, 3000, 1) LIKE &apos;%${CT}%&apos;
+ORDER BY sur.ID_SERVICE_AUDIT_RESPONSE DESC
+FETCH FIRST 1 ROWS ONLY</stringProp>
+            <stringProp name="queryArguments"></stringProp>
+            <stringProp name="queryArgumentsTypes"></stringProp>
+            <stringProp name="queryTimeout"></stringProp>
+            <stringProp name="queryType">Select Statement</stringProp>
+            <stringProp name="resultSetHandler">Store as String</stringProp>
+            <stringProp name="resultSetMaxRows"></stringProp>
+            <stringProp name="resultVariable"></stringProp>
+            <stringProp name="variableNames">ID_SERVICE_AUDIT_RESPONSE, RESPONSE_DATE, RESPONSE, METADATA_RESPONSE, ID_SERVICE_AUDIT, CLIENT_IP, CLIENT_PORT, SERVICE, SERVICE_USER, REQUEST_DATE, REQUEST, METADATA, CONSUMER</stringProp>
+          </JDBCSampler>
+          <hashTree>
+            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="hastData_979">
+              <stringProp name="scriptLanguage">groovy</stringProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="cacheKey">true</stringProp>
+              <stringProp name="script">def response = vars.get(&quot;RESPONSE_1&quot;)
+log.info(&quot;valor de resposnse : \n${response}&quot;)
+
+if (response == null || !response.contains(&quot;200&quot;)) {
+    prev.setSuccessful(false) 
+    prev.setResponseMessage(&quot;Response não contém código 200&quot;)
+    log.error(&quot;Response não contem código 200&quot;)
+}
+</stringProp>
+            </JSR223PostProcessor>
+            <hashTree/>
+            <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Temporizador Constante">
+              <stringProp name="ConstantTimer.delay">${delayCommit}</stringProp>
+            </ConstantTimer>
+            <hashTree/>
+          </hashTree>
+        </hashTree>
         <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="1.  Validar que o sistema obtém o dia do parâetro DVENCONFEE e calcula corretamente a data limite no mês seguinte ao ano-mês de referência quando o dia resultante é útil." enabled="false">
           <boolProp name="TransactionController.parent">true</boolProp>
           <boolProp name="TransactionController.includeTimers">false</boolProp>
         </TransactionController>
         <hashTree>
-          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="UPDATE DE PERIDO" enabled="true">
+          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="UPDATE DE PERIDO">
             <stringProp name="dataSource">dbConnection</stringProp>
             <stringProp name="query">UPDATE GRS.PARAMETRO
 set NUMERICO_1 = ${DIA_RESULTADO} 
@@ -583,7 +1428,7 @@ log.info(&quot;Dia: ${dia}&quot;)
 log.info(&quot;Data completa: ${dataCompleta}&quot;)</stringProp>
             </JSR223PreProcessor>
             <hashTree/>
-            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="valida Update" enabled="true">
+            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="valida Update">
               <stringProp name="scriptLanguage">groovy</stringProp>
               <stringProp name="parameters"></stringProp>
               <stringProp name="filename"></stringProp>
@@ -721,7 +1566,7 @@ if (dataBanco == null || !dataBanco.contains(dataEsperada)) {
           <boolProp name="TransactionController.includeTimers">false</boolProp>
         </TransactionController>
         <hashTree>
-          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="UPDATE DE PERIDO">
+          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="UPDATE DE PERIDO" enabled="true">
             <stringProp name="dataSource">dbConnection</stringProp>
             <stringProp name="query">UPDATE GRS.PARAMETRO
 set NUMERICO_1 = ${DIA_RESULTADO} 
@@ -736,7 +1581,7 @@ WHERE CODIGO_PARAMETRO=&apos;DVENCONFEE&apos;</stringProp>
             <stringProp name="variableNames"></stringProp>
           </JDBCSampler>
           <hashTree>
-            <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="next_SUNDAY">
+            <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="next_SUNDAY" enabled="true">
               <stringProp name="scriptLanguage">groovy</stringProp>
               <stringProp name="parameters"></stringProp>
               <stringProp name="filename"></stringProp>
@@ -890,15 +1735,15 @@ if (dataBanco == null || !dataBanco.contains(dataEsperada)) {
             <hashTree/>
           </hashTree>
         </hashTree>
-        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="3.  Validar que o sistema obtém o próximo dia útil quando a data limite calculada não corresponde a um dia útil. ">
+        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="3.  Validar que o sistema calcula corretamente o mês seguinte quando o ano-mês de referência corresponde a dezembro." enabled="false">
           <boolProp name="TransactionController.parent">true</boolProp>
           <boolProp name="TransactionController.includeTimers">false</boolProp>
         </TransactionController>
         <hashTree>
-          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="UPDATE DE PERIDO">
+          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="UPDATE DE PERIDO" enabled="true">
             <stringProp name="dataSource">dbConnection</stringProp>
             <stringProp name="query">UPDATE GRS.PARAMETRO
-set NUMERICO_1 = ${DIA_RESULTADO} 
+set NUMERICO_1 = 5 
 WHERE CODIGO_PARAMETRO=&apos;DVENCONFEE&apos;</stringProp>
             <stringProp name="queryArguments"></stringProp>
             <stringProp name="queryArgumentsTypes"></stringProp>
@@ -910,31 +1755,52 @@ WHERE CODIGO_PARAMETRO=&apos;DVENCONFEE&apos;</stringProp>
             <stringProp name="variableNames"></stringProp>
           </JDBCSampler>
           <hashTree>
-            <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="next_SUNDAY">
+            <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="next_SUNDAY" enabled="true">
               <stringProp name="scriptLanguage">groovy</stringProp>
               <stringProp name="parameters"></stringProp>
               <stringProp name="filename"></stringProp>
               <stringProp name="cacheKey">true</stringProp>
               <stringProp name="script">import java.time.LocalDate
 import java.time.DayOfWeek
-import java.time.temporal.TemporalAdjusters
 import java.time.format.DateTimeFormatter
 
-LocalDate hoje = LocalDate.now()
 
-// #Prooximo domingo a partir de hoj
-LocalDate proximoDomingo = hoje.with(TemporalAdjusters.next(DayOfWeek.SUNDAY))
-String diaDomingo = proximoDomingo.getDayOfMonth().toString()
-vars.put(&quot;DIA_RESULTADO&quot;, diaDomingo)
+//#DIA_RESULTADO
+int diaResultado = 5
 
-// #Dia seguinte ao domingo
-LocalDate diaSeguinte = proximoDomingo.plusDays(1)
-String dataResultado = diaSeguinte.format(DateTimeFormatter.ofPattern(&quot;yyyy-MM-dd&quot;))
+
+// ANO DINÂMICO
+int ano = LocalDate.now().year + 1
+
+
+// COMEÇAMOS EM 01/JANEIRO
+LocalDate data = LocalDate.of(ano, 1, diaResultado)
+
+
+// FERIADOS FIXOS
+def isFeriado = { d -&gt;
+    (d.monthValue == 1 &amp;&amp; d.dayOfMonth == 1)
+}
+
+
+// AJUSTAR SE NÃO FOR DIA ÚTIL
+while (
+    data.dayOfWeek == DayOfWeek.SATURDAY ||
+    data.dayOfWeek == DayOfWeek.SUNDAY ||
+    isFeriado(data)
+) {
+    data = data.plusDays(1)
+}
+
+
+// RESULTADO FINAL
+String dataResultado = data.format(DateTimeFormatter.ofPattern(&quot;yyyy-MM-dd&quot;))
+
+vars.put(&quot;DIA_RESULTADO&quot;, String.valueOf(diaResultado))
 vars.put(&quot;DATA_RESULTADO&quot;, dataResultado)
 
-log.info(&quot;Próximo domingo: ${proximoDomingo}&quot;)
-log.info(&quot;Dia do domingo (DIA_RESULTADO): ${diaDomingo}&quot;)
-log.info(&quot;Data resultado (PROX_DIA_UTIL): ${dataResultado}&quot;)</stringProp>
+log.info(&quot;DIA_RESULTADO: &quot; + diaResultado)
+log.info(&quot;DATA_RESULTADO ajustada: &quot; + dataResultado)</stringProp>
             </JSR223PreProcessor>
             <hashTree/>
             <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="valida Update" enabled="true">
@@ -966,7 +1832,7 @@ if (!response.contains(&quot;1 updates&quot;)) {
                   <stringProp name="Argument.value">{&#xd;
     &quot;batch&quot;: &quot;ApuramentoParcelasEEHistorico&quot;,&#xd;
     &quot;NISS_EE&quot;: &quot;${NISS_EE}&quot;,&#xd;
-    &quot;ANO_MES_REFERENCIA&quot;: &quot;${current_AnoMes}&quot;&#xd;
+    &quot;ANO_MES_REFERENCIA&quot;: &quot;${lastMount}&quot;&#xd;
 }</stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>
                 </elementProp>
@@ -980,26 +1846,22 @@ if (!response.contains(&quot;1 updates&quot;)) {
               <stringProp name="JSONPostProcessor.match_numbers"></stringProp>
             </JSONPostProcessor>
             <hashTree/>
-          </hashTree>
-          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="FALLBACK_DVENCONFEE20" enabled="true">
-            <stringProp name="dataSource">dbConnection</stringProp>
-            <stringProp name="query">UPDATE 
-GRS.PARAMETRO 
-set NUMERICO_1 = 20 
-WHERE CODIGO_PARAMETRO=&apos;DVENCONFEE&apos;</stringProp>
-            <stringProp name="queryArguments"></stringProp>
-            <stringProp name="queryArgumentsTypes"></stringProp>
-            <stringProp name="queryTimeout"></stringProp>
-            <stringProp name="queryType">Update Statement</stringProp>
-            <stringProp name="resultSetHandler">Store as String</stringProp>
-            <stringProp name="resultSetMaxRows"></stringProp>
-            <stringProp name="resultVariable"></stringProp>
-            <stringProp name="variableNames"></stringProp>
-          </JDBCSampler>
-          <hashTree>
-            <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Temporizador Constante" enabled="true">
-              <stringProp name="ConstantTimer.delay">2000</stringProp>
-            </ConstantTimer>
+            <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="JSR223 PreProcessor" enabled="true">
+              <stringProp name="scriptLanguage">groovy</stringProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="cacheKey">true</stringProp>
+              <stringProp name="script">import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+
+LocalDate lastMonth = LocalDate.of(LocalDate.now().year, 12, 1)
+
+String yyyymm = lastMonth.format(DateTimeFormatter.ofPattern(&quot;yyyyMM&quot;))
+
+vars.put(&quot;lastMount&quot;, yyyymm)
+
+log.info(&quot;Último mês do ano: &quot; + yyyymm)</stringProp>
+            </JSR223PreProcessor>
             <hashTree/>
           </hashTree>
           <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="CATCH_ID_ENTIDADE_EMPREGADORA" enabled="true">
@@ -1025,7 +1887,9 @@ FROM eeaoc.entidade_empregadora ee
 JOIN eeaoc.periodo_confirmacao pc
   ON pc.ID_ENTIDADE_EMPREGADORA = ee.ID_ENTIDADE_EMPREGADORA
 WHERE pc.ID_ENTIDADE_EMPREGADORA = ${ID_ENTIDADE_EMPREGADORA_1}
-  AND EXTRACT(MONTH FROM pc.DATA_FIM_PERIODO) = ${current_MONTH}</stringProp>
+  AND EXTRACT(MONTH FROM pc.DATA_FIM_PERIODO) = 12
+ORDER BY DATA_FIM_PERIODO DESC
+  FETCH FIRST 1 ROWS ONLY</stringProp>
             <stringProp name="queryArguments"></stringProp>
             <stringProp name="queryArgumentsTypes"></stringProp>
             <stringProp name="queryTimeout"></stringProp>
@@ -1061,6 +1925,27 @@ if (dataBanco == null || !dataBanco.contains(dataEsperada)) {
     prev.setResponseMessage(&quot;VALIDAÇÃO da DATA_FIM_PERIODO [PASS]&quot;)
 }</stringProp>
             </JSR223PostProcessor>
+            <hashTree/>
+          </hashTree>
+          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="FALLBACK_DVENCONFEE20" enabled="true">
+            <stringProp name="dataSource">dbConnection</stringProp>
+            <stringProp name="query">UPDATE 
+GRS.PARAMETRO 
+set NUMERICO_1 = 20 
+WHERE CODIGO_PARAMETRO=&apos;DVENCONFEE&apos;</stringProp>
+            <stringProp name="queryArguments"></stringProp>
+            <stringProp name="queryArgumentsTypes"></stringProp>
+            <stringProp name="queryTimeout"></stringProp>
+            <stringProp name="queryType">Update Statement</stringProp>
+            <stringProp name="resultSetHandler">Store as String</stringProp>
+            <stringProp name="resultSetMaxRows"></stringProp>
+            <stringProp name="resultVariable"></stringProp>
+            <stringProp name="variableNames"></stringProp>
+          </JDBCSampler>
+          <hashTree>
+            <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Temporizador Constante" enabled="true">
+              <stringProp name="ConstantTimer.delay">2000</stringProp>
+            </ConstantTimer>
             <hashTree/>
           </hashTree>
         </hashTree>
@@ -1069,7 +1954,7 @@ if (dataBanco == null || !dataBanco.contains(dataEsperada)) {
           <boolProp name="TransactionController.includeTimers">false</boolProp>
         </TransactionController>
         <hashTree>
-          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="Verificar_existencia_dados_mes_corrente">
+          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="Verificar_existencia_dados_mes_corrente" enabled="true">
             <stringProp name="dataSource">dbConnection</stringProp>
             <stringProp name="query">select ee.ID_ENTIDADE_EMPREGADORA, 
 pc.ID_PERIODO_CONFIRMACAO, pc.DATA_INICIO_PERIODO, pc.DATA_FIM_PERIODO, cee.ID_CONFIRMACAO_ENTIDADE_EMP from 
@@ -1131,7 +2016,7 @@ if (mesmoMes) {
             </JSR223PostProcessor>
             <hashTree/>
           </hashTree>
-          <IfController guiclass="IfControllerPanel" testclass="IfController" testname="DELETAR DADOS CASO EXISTAM">
+          <IfController guiclass="IfControllerPanel" testclass="IfController" testname="DELETAR DADOS CASO EXISTAM" enabled="true">
             <stringProp name="IfController.condition">${__groovy(vars.get(&quot;MES_CORRENTE&quot;) == &quot;true&quot;)}</stringProp>
             <boolProp name="IfController.evaluateAll">false</boolProp>
             <boolProp name="IfController.useExpression">true</boolProp>
