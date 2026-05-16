@@ -257,7 +257,7 @@ if (props.get(&apos;noRegistoPeriodoConfirmacao&apos;) == &quot;true&quot;) {
         <stringProp name="scriptLanguage">groovy</stringProp>
       </JSR223PostProcessor>
       <hashTree/>
-      <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="CHECK_DATA_DATA_FIM_BD" enabled="true">
+      <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="CHECK_DATA_DATA_FIM_BD">
         <stringProp name="cacheKey">true</stringProp>
         <stringProp name="filename"></stringProp>
         <stringProp name="parameters"></stringProp>
@@ -297,7 +297,7 @@ if (props.get(&apos;CHECKDATABD&apos;) == &quot;true&quot;) {
         <stringProp name="scriptLanguage">groovy</stringProp>
       </JSR223PostProcessor>
       <hashTree/>
-      <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="CHECK_DATA_INICIO_BD" enabled="true">
+      <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="CHECK_DATA_INICIO_BD">
         <stringProp name="cacheKey">true</stringProp>
         <stringProp name="filename"></stringProp>
         <stringProp name="parameters"></stringProp>
@@ -2346,7 +2346,7 @@ WHERE CODIGO_PARAMETRO=&apos;DVENCONFEE&apos;</stringProp>
             <stringProp name="ConstantTimer.delay">1000</stringProp>
           </ConstantTimer>
           <hashTree/>
-          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="1. Verifica Existencia_dados_mes_corrente">
+          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="1. Verifica Existencia_dados_mes_corrente" enabled="true">
             <stringProp name="dataSource">dbConnection</stringProp>
             <stringProp name="query">select ee.ID_ENTIDADE_EMPREGADORA, 
 pc.ID_PERIODO_CONFIRMACAO, pc.DATA_INICIO_PERIODO, pc.DATA_FIM_PERIODO, cee.ID_CONFIRMACAO_ENTIDADE_EMP from 
@@ -2367,7 +2367,7 @@ AND EXTRACT(MONTH FROM pc.DATA_INICIO_PERIODO) = ${MONTH}</stringProp>
             <stringProp name="variableNames">ID_ENTIDADE_EMPREGADORA, ID_PERIODO_CONFIRMACAO, DATA_INICIO_PERIODO, DATA_FIM_PERIODO, ID_CONFIRMACAO_ENTIDADE_EMP</stringProp>
           </JDBCSampler>
           <hashTree>
-            <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="minusMonths">
+            <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="minusMonths" enabled="true">
               <stringProp name="scriptLanguage">groovy</stringProp>
               <stringProp name="parameters"></stringProp>
               <stringProp name="filename"></stringProp>
@@ -2381,7 +2381,7 @@ log.info(&quot;MONTH_PREVIOUS: &quot; + now.getMonthValue())
 </stringProp>
             </JSR223PreProcessor>
             <hashTree/>
-            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="HAS_DATA">
+            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="HAS_DATA" enabled="true">
               <stringProp name="scriptLanguage">groovy</stringProp>
               <stringProp name="parameters"></stringProp>
               <stringProp name="filename"></stringProp>
@@ -2406,7 +2406,7 @@ else
             </JSR223PostProcessor>
             <hashTree/>
           </hashTree>
-          <IfController guiclass="IfControllerPanel" testclass="IfController" testname="DELETAR DADOS CASO EXISTAM">
+          <IfController guiclass="IfControllerPanel" testclass="IfController" testname="DELETAR DADOS CASO EXISTAM" enabled="true">
             <stringProp name="IfController.condition">${__groovy(vars.get(&quot;MES_CORRENTE&quot;) == &quot;true&quot;)}</stringProp>
             <boolProp name="IfController.evaluateAll">false</boolProp>
             <boolProp name="IfController.useExpression">true</boolProp>
@@ -2474,7 +2474,7 @@ ic.ID_CONFIRMACAO_ENTIDADE_EMP = ${ID_PERIODO_CONFIRMACAO_1}</stringProp>
             </JDBCSampler>
             <hashTree/>
           </hashTree>
-          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="UPDATE_DVENCONFEE">
+          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="UPDATE_DVENCONFEE" enabled="true">
             <stringProp name="dataSource">dbConnection</stringProp>
             <stringProp name="query">UPDATE GRS.PARAMETRO
 set NUMERICO_1 = 17
@@ -2489,7 +2489,7 @@ WHERE CODIGO_PARAMETRO=&apos;DVENCONFEE&apos;</stringProp>
             <stringProp name="variableNames"></stringProp>
           </JDBCSampler>
           <hashTree>
-            <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="next_friday_V2">
+            <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="next_friday_V2" enabled="true">
               <stringProp name="scriptLanguage">groovy</stringProp>
               <stringProp name="parameters"></stringProp>
               <stringProp name="filename"></stringProp>
@@ -2523,7 +2523,7 @@ DATA_FIM_RESULTADO: ${vars.get(&apos;DATA_FIM_RESULTADO&apos;)}
 &quot;&quot;&quot;)</stringProp>
             </JSR223PreProcessor>
             <hashTree/>
-            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="valida Update">
+            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="valida Update" enabled="true">
               <stringProp name="scriptLanguage">groovy</stringProp>
               <stringProp name="parameters"></stringProp>
               <stringProp name="filename"></stringProp>
@@ -2537,7 +2537,7 @@ if (!response.contains(&quot;1 updates&quot;)) {
             </JSR223PostProcessor>
             <hashTree/>
           </hashTree>
-          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="UPDATE HM">
+          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="UPDATE HM" enabled="true">
             <stringProp name="dataSource">dbConnection</stringProp>
             <stringProp name="query">update  
 eeaoc.historico_mensal 
@@ -2565,7 +2565,7 @@ vars.put(&quot;YEAR_MONTH_BEFORE&quot;, yearMonthBefore)
 log.info(&quot;YEAR_MONTH_BEFORE: &quot; + yearMonthBefore)</stringProp>
             </JSR223PreProcessor>
             <hashTree/>
-            <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="minusMonths">
+            <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="minusMonths" enabled="true">
               <stringProp name="scriptLanguage">groovy</stringProp>
               <stringProp name="parameters"></stringProp>
               <stringProp name="filename"></stringProp>
@@ -2578,7 +2578,7 @@ vars.put(&quot;DATE_CURRENT&quot;, anoMesAnterior)
 log.info(&quot;ANO_MES_ANTEIOR: ${vars.get(&apos;DATE_CURRENT&apos;)}&quot;)</stringProp>
             </JSR223PreProcessor>
             <hashTree/>
-            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="valida Update">
+            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="valida Update" enabled="true">
               <stringProp name="scriptLanguage">groovy</stringProp>
               <stringProp name="parameters"></stringProp>
               <stringProp name="filename"></stringProp>
@@ -2594,7 +2594,7 @@ if (!response.contains(&quot;1 updates&quot;)) {
             </JSR223PostProcessor>
             <hashTree/>
           </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Executar_batch_ApuramentoParcelasEEHistorico">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Executar_batch_ApuramentoParcelasEEHistorico" enabled="true">
             <stringProp name="HTTPSampler.domain">${url_batch}</stringProp>
             <stringProp name="HTTPSampler.port">${port_batch}</stringProp>
             <stringProp name="HTTPSampler.path">/run-batch</stringProp>
@@ -2623,11 +2623,11 @@ if (!response.contains(&quot;1 updates&quot;)) {
               <stringProp name="JSONPostProcessor.match_numbers"></stringProp>
             </JSONPostProcessor>
             <hashTree/>
-            <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Temporizador Constante">
+            <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Temporizador Constante" enabled="true">
               <stringProp name="ConstantTimer.delay">20000</stringProp>
             </ConstantTimer>
             <hashTree/>
-            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="batch">
+            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="batch" enabled="true">
               <stringProp name="scriptLanguage">groovy</stringProp>
               <stringProp name="parameters"></stringProp>
               <stringProp name="filename"></stringProp>
@@ -2637,11 +2637,11 @@ vars.put(&quot;READY&quot;,&quot;0&quot;)</stringProp>
             </JSR223PostProcessor>
             <hashTree/>
           </hashTree>
-          <WhileController guiclass="WhileControllerGui" testclass="WhileController" testname="ESTADO_BATCH _IS_ENDED_WITH_SUCCESS">
+          <WhileController guiclass="WhileControllerGui" testclass="WhileController" testname="ESTADO_BATCH _IS_ENDED_WITH_SUCCESS" enabled="true">
             <stringProp name="WhileController.condition">${__groovy(vars.get(&quot;READY&quot;) != &quot;STOP&quot;)}</stringProp>
           </WhileController>
           <hashTree>
-            <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="FRAB.SERVIDOR_FRAB">
+            <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="FRAB.SERVIDOR_FRAB" enabled="true">
               <stringProp name="dataSource">ptecConnection</stringProp>
               <stringProp name="query">SELECT 
   e.IDENTIFICADOR_EXECUCAO, 
@@ -2703,13 +2703,13 @@ if (!valorEsperado.contains(valorBanco)) {
 </stringProp>
               </JSR223PostProcessor>
               <hashTree/>
-              <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Temporizador Constante">
+              <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Temporizador Constante" enabled="true">
                 <stringProp name="ConstantTimer.delay">1000</stringProp>
               </ConstantTimer>
               <hashTree/>
             </hashTree>
           </hashTree>
-          <WhileController guiclass="WhileControllerGui" testclass="WhileController" testname="VALIDA_PERIODO_CONFIRMACAO">
+          <WhileController guiclass="WhileControllerGui" testclass="WhileController" testname="VALIDA_PERIODO_CONFIRMACAO" enabled="true">
             <stringProp name="WhileController.condition">${__groovy(vars.get(&quot;LOOP&quot;) != &quot;STOP&quot;)}</stringProp>
           </WhileController>
           <hashTree>
@@ -2730,7 +2730,7 @@ AND EXTRACT(MONTH FROM pc.DATA_INICIO_PERIODO) = ${MOTH}</stringProp>
               <stringProp name="variableNames">ID_PERIODO_CONFIRMACAO, DATA_INICIO_PERIODO, DATA_FIM_PERIODO, ID_ENTIDADE_EMPREGADORA</stringProp>
             </JDBCSampler>
             <hashTree>
-              <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="SEND_CHECK_DATA_BD">
+              <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="SEND_CHECK_DATA_BD" enabled="true">
                 <stringProp name="scriptLanguage">groovy</stringProp>
                 <stringProp name="parameters"></stringProp>
                 <stringProp name="filename"></stringProp>
@@ -2740,7 +2740,7 @@ AND EXTRACT(MONTH FROM pc.DATA_INICIO_PERIODO) = ${MOTH}</stringProp>
               <hashTree/>
             </hashTree>
           </hashTree>
-          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="FALLBACK_DVENCONFEE20">
+          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="FALLBACK_DVENCONFEE20" enabled="true">
             <stringProp name="dataSource">dbConnection</stringProp>
             <stringProp name="query">UPDATE 
 GRS.PARAMETRO 
@@ -2756,7 +2756,7 @@ WHERE CODIGO_PARAMETRO=&apos;DVENCONFEE&apos;</stringProp>
             <stringProp name="variableNames"></stringProp>
           </JDBCSampler>
           <hashTree>
-            <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Temporizador Constante">
+            <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Temporizador Constante" enabled="true">
               <stringProp name="ConstantTimer.delay">19000</stringProp>
             </ConstantTimer>
             <hashTree/>
@@ -2771,7 +2771,7 @@ WHERE CODIGO_PARAMETRO=&apos;DVENCONFEE&apos;</stringProp>
             <stringProp name="ConstantTimer.delay">1000</stringProp>
           </ConstantTimer>
           <hashTree/>
-          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="1. Verifica Existencia_dados_mes_corrente">
+          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="1. Verifica Existencia_dados_mes_corrente" enabled="true">
             <stringProp name="dataSource">dbConnection</stringProp>
             <stringProp name="query">select ee.ID_ENTIDADE_EMPREGADORA, 
 pc.ID_PERIODO_CONFIRMACAO, pc.DATA_INICIO_PERIODO, pc.DATA_FIM_PERIODO, cee.ID_CONFIRMACAO_ENTIDADE_EMP from 
@@ -2792,7 +2792,7 @@ AND EXTRACT(MONTH FROM pc.DATA_INICIO_PERIODO) = ${MOTH}</stringProp>
             <stringProp name="variableNames">ID_ENTIDADE_EMPREGADORA, ID_PERIODO_CONFIRMACAO, DATA_INICIO_PERIODO, DATA_FIM_PERIODO, ID_CONFIRMACAO_ENTIDADE_EMP</stringProp>
           </JDBCSampler>
           <hashTree>
-            <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="MOTH_CURRENT">
+            <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="MOTH_CURRENT" enabled="true">
               <stringProp name="scriptLanguage">groovy</stringProp>
               <stringProp name="parameters"></stringProp>
               <stringProp name="filename"></stringProp>
@@ -2805,7 +2805,7 @@ log.info(&quot;MOTH_CURRENT: &quot; + now.getMonthValue())
 </stringProp>
             </JSR223PreProcessor>
             <hashTree/>
-            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="HAS_DATA">
+            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="HAS_DATA" enabled="true">
               <stringProp name="scriptLanguage">groovy</stringProp>
               <stringProp name="parameters"></stringProp>
               <stringProp name="filename"></stringProp>
@@ -2832,7 +2832,7 @@ else
             </JSR223PostProcessor>
             <hashTree/>
           </hashTree>
-          <IfController guiclass="IfControllerPanel" testclass="IfController" testname="DELETAR DADOS CASO EXISTAM">
+          <IfController guiclass="IfControllerPanel" testclass="IfController" testname="DELETAR DADOS CASO EXISTAM" enabled="true">
             <stringProp name="IfController.condition">${__groovy(vars.get(&quot;MES_CORRENTE&quot;) == &quot;true&quot;)}</stringProp>
             <boolProp name="IfController.evaluateAll">false</boolProp>
             <boolProp name="IfController.useExpression">true</boolProp>
@@ -2900,7 +2900,7 @@ ic.ID_CONFIRMACAO_ENTIDADE_EMP = ${ID_PERIODO_CONFIRMACAO_1}</stringProp>
             </JDBCSampler>
             <hashTree/>
           </hashTree>
-          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="UPDATE_DVENCONFEE">
+          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="UPDATE_DVENCONFEE" enabled="true">
             <stringProp name="dataSource">dbConnection</stringProp>
             <stringProp name="query">UPDATE GRS.PARAMETRO
 set NUMERICO_1 = ${DIA_RESULTADO} 
@@ -2915,7 +2915,7 @@ WHERE CODIGO_PARAMETRO=&apos;DVENCONFEE&apos;</stringProp>
             <stringProp name="variableNames"></stringProp>
           </JDBCSampler>
           <hashTree>
-            <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="next_friday_V2">
+            <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="next_friday_V2" enabled="true">
               <stringProp name="scriptLanguage">groovy</stringProp>
               <stringProp name="parameters"></stringProp>
               <stringProp name="filename"></stringProp>
@@ -2962,7 +2962,7 @@ if (!response.contains(&quot;1 updates&quot;)) {
             </JSR223PostProcessor>
             <hashTree/>
           </hashTree>
-          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="UPDATE HM">
+          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="UPDATE HM" enabled="true">
             <stringProp name="dataSource">dbConnection</stringProp>
             <stringProp name="query">update  
 eeaoc.historico_mensal 
@@ -3019,7 +3019,7 @@ if (!response.contains(&quot;1 updates&quot;)) {
             </JSR223PostProcessor>
             <hashTree/>
           </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Executar_batch_ApuramentoParcelasEEHistorico">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Executar_batch_ApuramentoParcelasEEHistorico" enabled="true">
             <stringProp name="HTTPSampler.domain">${url_batch}</stringProp>
             <stringProp name="HTTPSampler.port">${port_batch}</stringProp>
             <stringProp name="HTTPSampler.path">/run-batch</stringProp>
@@ -3048,11 +3048,11 @@ if (!response.contains(&quot;1 updates&quot;)) {
               <stringProp name="JSONPostProcessor.match_numbers"></stringProp>
             </JSONPostProcessor>
             <hashTree/>
-            <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Temporizador Constante">
+            <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Temporizador Constante" enabled="true">
               <stringProp name="ConstantTimer.delay">20000</stringProp>
             </ConstantTimer>
             <hashTree/>
-            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="batch">
+            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="batch" enabled="true">
               <stringProp name="scriptLanguage">groovy</stringProp>
               <stringProp name="parameters"></stringProp>
               <stringProp name="filename"></stringProp>
@@ -3062,11 +3062,11 @@ vars.put(&quot;READY&quot;,&quot;0&quot;)</stringProp>
             </JSR223PostProcessor>
             <hashTree/>
           </hashTree>
-          <WhileController guiclass="WhileControllerGui" testclass="WhileController" testname="ESTADO_BATCH _IS_ENDED_WITH_SUCCESS">
+          <WhileController guiclass="WhileControllerGui" testclass="WhileController" testname="ESTADO_BATCH _IS_ENDED_WITH_SUCCESS" enabled="true">
             <stringProp name="WhileController.condition">${__groovy(vars.get(&quot;READY&quot;) != &quot;STOP&quot;)}</stringProp>
           </WhileController>
           <hashTree>
-            <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="FRAB.SERVIDOR_FRAB">
+            <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="FRAB.SERVIDOR_FRAB" enabled="true">
               <stringProp name="dataSource">ptecConnection</stringProp>
               <stringProp name="query">SELECT 
   e.IDENTIFICADOR_EXECUCAO, 
@@ -3128,13 +3128,13 @@ if (!valorEsperado.contains(valorBanco)) {
 </stringProp>
               </JSR223PostProcessor>
               <hashTree/>
-              <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Temporizador Constante">
+              <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Temporizador Constante" enabled="true">
                 <stringProp name="ConstantTimer.delay">1000</stringProp>
               </ConstantTimer>
               <hashTree/>
             </hashTree>
           </hashTree>
-          <WhileController guiclass="WhileControllerGui" testclass="WhileController" testname="VALIDA_PERIODO_CONFIRMACAO">
+          <WhileController guiclass="WhileControllerGui" testclass="WhileController" testname="VALIDA_PERIODO_CONFIRMACAO" enabled="true">
             <stringProp name="WhileController.condition">${__groovy(vars.get(&quot;LOOP&quot;) != &quot;STOP&quot;)}</stringProp>
           </WhileController>
           <hashTree>
@@ -3155,7 +3155,7 @@ AND EXTRACT(MONTH FROM pc.DATA_INICIO_PERIODO) = ${MOTH}</stringProp>
               <stringProp name="variableNames">ID_PERIODO_CONFIRMACAO, DATA_INICIO_PERIODO, DATA_FIM_PERIODO, ID_ENTIDADE_EMPREGADORA</stringProp>
             </JDBCSampler>
             <hashTree>
-              <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="SEND_CHECK_DATA_BD">
+              <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="SEND_CHECK_DATA_BD" enabled="true">
                 <stringProp name="scriptLanguage">groovy</stringProp>
                 <stringProp name="parameters"></stringProp>
                 <stringProp name="filename"></stringProp>
@@ -3165,7 +3165,7 @@ AND EXTRACT(MONTH FROM pc.DATA_INICIO_PERIODO) = ${MOTH}</stringProp>
               <hashTree/>
             </hashTree>
           </hashTree>
-          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="FALLBACK_DVENCONFEE20">
+          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="FALLBACK_DVENCONFEE20" enabled="true">
             <stringProp name="dataSource">dbConnection</stringProp>
             <stringProp name="query">UPDATE 
 GRS.PARAMETRO 
@@ -3181,7 +3181,7 @@ WHERE CODIGO_PARAMETRO=&apos;DVENCONFEE&apos;</stringProp>
             <stringProp name="variableNames"></stringProp>
           </JDBCSampler>
           <hashTree>
-            <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Temporizador Constante">
+            <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Temporizador Constante" enabled="true">
               <stringProp name="ConstantTimer.delay">19000</stringProp>
             </ConstantTimer>
             <hashTree/>
@@ -4989,7 +4989,7 @@ WHERE CODIGO_PARAMETRO=&apos;DVENCONFEE&apos;</stringProp>
           <boolProp name="TransactionController.includeTimers">false</boolProp>
         </TransactionController>
         <hashTree>
-          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="1. Verifica Existencia_dados_mes_corrente">
+          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="1. Verifica Existencia_dados_mes_corrente" enabled="true">
             <stringProp name="dataSource">dbConnection</stringProp>
             <stringProp name="query">select ee.ID_ENTIDADE_EMPREGADORA, 
 pc.ID_PERIODO_CONFIRMACAO, pc.DATA_INICIO_PERIODO, pc.DATA_FIM_PERIODO, cee.ID_CONFIRMACAO_ENTIDADE_EMP from 
@@ -5441,7 +5441,7 @@ WHERE CODIGO_PARAMETRO=&apos;DVENCONFEE&apos;</stringProp>
             <hashTree/>
           </hashTree>
         </hashTree>
-        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="EEAOC-2527 : Validar que o sistema a partir do DVENCONFEE, calcula corretamente as datas de início e fim do período na passagem de ano">
+        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="EEAOC-2527 : Validar que o sistema a partir do DVENCONFEE, calcula corretamente as datas de início e fim do período na passagem de ano" enabled="true">
           <boolProp name="TransactionController.parent">true</boolProp>
           <boolProp name="TransactionController.includeTimers">false</boolProp>
         </TransactionController>
@@ -5482,7 +5482,7 @@ log.info(&quot;MOTH_CURRENT: &quot; + now.getMonthValue())
 </stringProp>
             </JSR223PreProcessor>
             <hashTree/>
-            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="HAS_DATA">
+            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="HAS_DATA" enabled="true">
               <stringProp name="scriptLanguage">groovy</stringProp>
               <stringProp name="parameters"></stringProp>
               <stringProp name="filename"></stringProp>
@@ -5508,7 +5508,7 @@ else
             </JSR223PostProcessor>
             <hashTree/>
           </hashTree>
-          <IfController guiclass="IfControllerPanel" testclass="IfController" testname="DELETAR DADOS CASO EXISTAM">
+          <IfController guiclass="IfControllerPanel" testclass="IfController" testname="DELETAR DADOS CASO EXISTAM" enabled="true">
             <stringProp name="IfController.condition">${__groovy(vars.get(&quot;MES_CORRENTE&quot;) == &quot;true&quot;)}</stringProp>
             <boolProp name="IfController.evaluateAll">false</boolProp>
             <boolProp name="IfController.useExpression">true</boolProp>
@@ -5591,7 +5591,7 @@ WHERE CODIGO_PARAMETRO=&apos;DVENCONFEE&apos;</stringProp>
             <stringProp name="variableNames"></stringProp>
           </JDBCSampler>
           <hashTree>
-            <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="DIA_CHUMBADO">
+            <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="DIA_CHUMBADO" enabled="true">
               <stringProp name="scriptLanguage">groovy</stringProp>
               <stringProp name="parameters"></stringProp>
               <stringProp name="filename"></stringProp>
@@ -5610,15 +5610,15 @@ import java.time.format.DateTimeFormatter
 
 def formatter = DateTimeFormatter.ofPattern(&quot;yyyy-MM-dd&quot;)
 
-// BASE (DEZEMBRO DO ANO ATUAL)
-def ano = LocalDate.now().getYear()
 
+// INÍCIO (DEZEMBRO ATUAL)
+def anoAtual = LocalDate.now().getYear()
 def diaChumbado = Integer.parseInt(vars.get(&quot;DIA_CHUMBADO&quot;) ?: &quot;1&quot;)
 
-def dataBase = LocalDate.of(ano, 12, diaChumbado)
+def dataInicioBase = LocalDate.of(anoAtual, 12, diaChumbado)
 
 
-//próximo dia útil 
+// FUNÇÃO: próximo dia útil (fim de semana)
 def proximoDiaUtil = { data -&gt;
     def d = data
     while (d.dayOfWeek == DayOfWeek.SATURDAY || d.dayOfWeek == DayOfWeek.SUNDAY) {
@@ -5627,44 +5627,30 @@ def proximoDiaUtil = { data -&gt;
     return d
 }
 
-// próximo dia útil com avanço (para INÍCIO)
-def proximoDiaUtilComAvanco = { data -&gt;
-    def d = data.plusDays(1) 
-
-    while (d.dayOfWeek == DayOfWeek.SATURDAY || d.dayOfWeek == DayOfWeek.SUNDAY) {
-        d = d.plusDays(1)
-    }
-    return d
-}
-
 
 // DATA_INICIO_RESULTADO
-def dataInicioResultado = proximoDiaUtilComAvanco(dataBase)
+def dataInicioResultado = proximoDiaUtil(dataInicioBase)
+def anoSeguinte = anoAtual + 1
+def dataFimBase = LocalDate.of(anoSeguinte, 1, 1)
+def dataFimAjustada = dataFimBase.plusDays(1)
+
+def dataFimResultado = proximoDiaUtil(dataFimAjustada)
 
 
-// DATA_FIM_RESULTADO
-def dataFimResultado = {
-    def d = dataBase
-    if (d.monthValue == 1 &amp;&amp; d.dayOfMonth == 1) {
-        d = d.plusDays(1)
-    }
-    return proximoDiaUtil(d)
-}()
 
 vars.put(&quot;DATA_INICIO_RESULTADO&quot;, dataInicioResultado.format(formatter))
 vars.put(&quot;DATA_FIM_RESULTADO&quot;, dataFimResultado.format(formatter))
 
-// ==========================
+
 // LOG
-// ==========================
+
 log.warn(&quot;&quot;&quot;
-DATA_BASE...............: ${dataBase}
-DATA_INICIO_RESULTADO...: ${vars.get(&apos;DATA_INICIO_RESULTADO&apos;)}
-DATA_FIM_RESULTADO......: ${vars.get(&apos;DATA_FIM_RESULTADO&apos;)}
+DATA_INICIO_RESULTADO..: ${vars.get(&apos;DATA_INICIO_RESULTADO&apos;)}
+DATA_FIM_RESULTADO.....: ${vars.get(&apos;DATA_FIM_RESULTADO&apos;)}
 &quot;&quot;&quot;)</stringProp>
             </JSR223PreProcessor>
             <hashTree/>
-            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="VALIDA_UPDATE_RESULTADO">
+            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="VALIDA_UPDATE_RESULTADO" enabled="true">
               <stringProp name="scriptLanguage">groovy</stringProp>
               <stringProp name="parameters"></stringProp>
               <stringProp name="filename"></stringProp>
@@ -5682,7 +5668,7 @@ if (!response.contains(&quot;1 updates&quot;)) {
             </ConstantTimer>
             <hashTree/>
           </hashTree>
-          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="UPDATE HM">
+          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="UPDATE HM" enabled="true">
             <stringProp name="dataSource">dbConnection</stringProp>
             <stringProp name="query">update  
 eeaoc.historico_mensal 
@@ -5698,7 +5684,7 @@ where ID_ENTIDADE_EMPREGADORA = ${ID_ENTIDADE_EMPREGADORA_1} and ANO_MES_REFEREN
             <stringProp name="variableNames"></stringProp>
           </JDBCSampler>
           <hashTree>
-            <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="DATE_CURRENT">
+            <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="DATE_CURRENT" enabled="true">
               <stringProp name="scriptLanguage">groovy</stringProp>
               <stringProp name="parameters"></stringProp>
               <stringProp name="filename"></stringProp>
@@ -5751,7 +5737,7 @@ if (!response.contains(&quot;1 updates&quot;)) {
             </elementProp>
           </HTTPSamplerProxy>
           <hashTree>
-            <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="JSON Extractor">
+            <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="JSON Extractor" enabled="true">
               <stringProp name="JSONPostProcessor.referenceNames">EXECUTION_ID</stringProp>
               <stringProp name="JSONPostProcessor.jsonPathExprs">$.executionId</stringProp>
               <stringProp name="JSONPostProcessor.match_numbers"></stringProp>
@@ -5761,7 +5747,7 @@ if (!response.contains(&quot;1 updates&quot;)) {
               <stringProp name="ConstantTimer.delay">1000</stringProp>
             </ConstantTimer>
             <hashTree/>
-            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="batch">
+            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="batch" enabled="true">
               <stringProp name="scriptLanguage">groovy</stringProp>
               <stringProp name="parameters"></stringProp>
               <stringProp name="filename"></stringProp>
@@ -5781,11 +5767,11 @@ Execution ID capturado.......: ${executionId}
             </JSR223PostProcessor>
             <hashTree/>
           </hashTree>
-          <WhileController guiclass="WhileControllerGui" testclass="WhileController" testname="ESTADO_BATCH _IS_ENDED_WITH_SUCCESS">
+          <WhileController guiclass="WhileControllerGui" testclass="WhileController" testname="ESTADO_BATCH _IS_ENDED_WITH_SUCCESS" enabled="true">
             <stringProp name="WhileController.condition">${__groovy(vars.get(&quot;READY&quot;) != &quot;STOP&quot;)}</stringProp>
           </WhileController>
           <hashTree>
-            <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="FRAB.SERVIDOR_FRAB" enabled="true">
+            <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="FRAB.SERVIDOR_FRAB">
               <stringProp name="dataSource">ptecConnection</stringProp>
               <stringProp name="query">SELECT 
   e.IDENTIFICADOR_EXECUCAO, 
@@ -5853,7 +5839,7 @@ if (!valorEsperado.contains(valorBanco)) {
               <hashTree/>
             </hashTree>
           </hashTree>
-          <WhileController guiclass="WhileControllerGui" testclass="WhileController" testname="VALIDA_PERIODO_CONFIRMACAO">
+          <WhileController guiclass="WhileControllerGui" testclass="WhileController" testname="VALIDA_PERIODO_CONFIRMACAO" enabled="true">
             <stringProp name="WhileController.condition">${__groovy(vars.get(&quot;LOOP&quot;) != &quot;STOP&quot;)}</stringProp>
           </WhileController>
           <hashTree>
@@ -5863,7 +5849,9 @@ if (!valorEsperado.contains(valorBanco)) {
 FROM EEAOC.PERIODO_CONFIRMACAO pc
 WHERE 
 pc.ID_ENTIDADE_EMPREGADORA = ${IDENTIDADEEMPREGADORA} 
-AND EXTRACT(MONTH FROM pc.DATA_INICIO_PERIODO) = ${MONTH}</stringProp>
+AND EXTRACT(MONTH FROM pc.DATA_INICIO_PERIODO) = ${MONTH}
+order by DATA_INICIO_PERIODO desc
+fetch first 1 rows only</stringProp>
               <stringProp name="queryArguments"></stringProp>
               <stringProp name="queryArgumentsTypes"></stringProp>
               <stringProp name="queryTimeout"></stringProp>
@@ -5874,17 +5862,18 @@ AND EXTRACT(MONTH FROM pc.DATA_INICIO_PERIODO) = ${MONTH}</stringProp>
               <stringProp name="variableNames">ID_PERIODO_CONFIRMACAO, DATA_INICIO_PERIODO, DATA_FIM_PERIODO, ID_ENTIDADE_EMPREGADORA</stringProp>
             </JDBCSampler>
             <hashTree>
-              <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="SEND_CHECK_DATA_BD">
+              <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="SEND_CHECK_DATA_INICIO_BD">
                 <stringProp name="scriptLanguage">groovy</stringProp>
                 <stringProp name="parameters"></stringProp>
                 <stringProp name="filename"></stringProp>
                 <stringProp name="cacheKey">true</stringProp>
-                <stringProp name="script">props.put(&quot;CHECKDATABD&quot;,&quot;true&quot;);</stringProp>
+                <stringProp name="script">props.put(&quot;CHECKDATABD&quot;,&quot;true&quot;);
+</stringProp>
               </JSR223PreProcessor>
               <hashTree/>
             </hashTree>
           </hashTree>
-          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="FALLBACK_DVENCONFEE20">
+          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="FALLBACK_DVENCONFEE20" enabled="true">
             <stringProp name="dataSource">dbConnection</stringProp>
             <stringProp name="query">UPDATE 
 GRS.PARAMETRO 
@@ -5901,7 +5890,7 @@ WHERE CODIGO_PARAMETRO=&apos;DVENCONFEE&apos;</stringProp>
           </JDBCSampler>
           <hashTree>
             <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Temporizador Constante">
-              <stringProp name="ConstantTimer.delay">30000</stringProp>
+              <stringProp name="ConstantTimer.delay">35000</stringProp>
             </ConstantTimer>
             <hashTree/>
           </hashTree>
@@ -6055,7 +6044,7 @@ WHERE CODIGO_PARAMETRO=&apos;DVENCONFEE&apos;</stringProp>
             <stringProp name="variableNames"></stringProp>
           </JDBCSampler>
           <hashTree>
-            <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="next_SATURDAY">
+            <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="next_SATURDAY" enabled="true">
               <stringProp name="scriptLanguage">groovy</stringProp>
               <stringProp name="parameters"></stringProp>
               <stringProp name="filename"></stringProp>
