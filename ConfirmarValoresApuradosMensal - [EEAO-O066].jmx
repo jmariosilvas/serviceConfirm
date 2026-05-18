@@ -257,7 +257,7 @@ if (props.get(&apos;noRegistoPeriodoConfirmacao&apos;) == &quot;true&quot;) {
         <stringProp name="scriptLanguage">groovy</stringProp>
       </JSR223PostProcessor>
       <hashTree/>
-      <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="CHECK_DATA_DATA_FIM_BD">
+      <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="CHECK_DATA_DATA_FIM_BD" enabled="true">
         <stringProp name="cacheKey">true</stringProp>
         <stringProp name="filename"></stringProp>
         <stringProp name="parameters"></stringProp>
@@ -297,7 +297,7 @@ if (props.get(&apos;CHECKDATABD&apos;) == &quot;true&quot;) {
         <stringProp name="scriptLanguage">groovy</stringProp>
       </JSR223PostProcessor>
       <hashTree/>
-      <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="CHECK_DATA_INICIO_BD">
+      <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="CHECK_DATA_INICIO_BD" enabled="true">
         <stringProp name="cacheKey">true</stringProp>
         <stringProp name="filename"></stringProp>
         <stringProp name="parameters"></stringProp>
@@ -572,7 +572,7 @@ if (sampler instanceof HTTPSamplerProxy) {
         <stringProp name="filename"></stringProp>
       </ResultCollector>
       <hashTree/>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="ORQUESTRADOR" enabled="true">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="ORQUESTRADOR">
         <intProp name="ThreadGroup.num_threads">1</intProp>
         <intProp name="ThreadGroup.ramp_time">1</intProp>
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
@@ -703,7 +703,7 @@ if (sampler instanceof HTTPSamplerProxy) {
           </RegexExtractor>
           <hashTree/>
         </hashTree>
-        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="EEAOC-975: Validar execução do serviço ConfirmarValoresObrigacaoContributiva com o campo niss-ee com menos de 11 dígitos" enabled="false">
+        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="EEAOC-975: Validar execução do serviço ConfirmarValoresObrigacaoContributiva com o campo niss-ee com menos de 11 dígitos">
           <boolProp name="TransactionController.parent">true</boolProp>
           <boolProp name="TransactionController.includeTimers">false</boolProp>
         </TransactionController>
@@ -759,15 +759,20 @@ if (sampler instanceof HTTPSamplerProxy) {
             </JSR223PostProcessor>
             <hashTree/>
           </hashTree>
-          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="GUS.SERVICE_AUDIT_RESPONSE | GUS.SERVICE_AUDIT " enabled="true">
+          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="GUS.SERVICE_AUDIT_RESPONSE | GUS.SERVICE_AUDIT ">
             <stringProp name="dataSource">devGUS</stringProp>
-            <stringProp name="query">SELECT sur.*, sa.*
+            <stringProp name="query">SELECT 
+    sur.ID_SERVICE_AUDIT_RESPONSE,
+    sur.RESPONSE_DATE,
+    DBMS_LOB.SUBSTR(sur.RESPONSE, 2000, 1) AS RESPONSE,
+    sur.METADATA_RESPONSE,
+    sa.*
 FROM GUS.SERVICE_AUDIT_RESPONSE sur
 INNER JOIN GUS.SERVICE_AUDIT sa
     ON sur.ID_SERVICE_AUDIT_RESPONSE = sa.ID_SERVICE_AUDIT
 WHERE sur.METADATA_RESPONSE LIKE &apos;%who(${NISS_EE})%&apos;
   AND sur.METADATA_RESPONSE LIKE &apos;%what(EEAO-O066)%&apos;
-  AND sa.request LIKE &apos;%${CT}%&apos;
+  AND DBMS_LOB.SUBSTR(sa.REQUEST, 2000, 1) LIKE &apos;%${CT}%&apos;
 ORDER BY sur.ID_SERVICE_AUDIT_RESPONSE DESC
 FETCH FIRST 1 ROWS ONLY</stringProp>
             <stringProp name="queryArguments"></stringProp>
@@ -850,15 +855,20 @@ prev.setResponseMessage(msg)
             </JSR223PostProcessor>
             <hashTree/>
           </hashTree>
-          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="GUS.SERVICE_AUDIT_RESPONSE | GUS.SERVICE_AUDIT " enabled="true">
+          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="GUS.SERVICE_AUDIT_RESPONSE | GUS.SERVICE_AUDIT ">
             <stringProp name="dataSource">devGUS</stringProp>
-            <stringProp name="query">SELECT sur.*, sa.*
+            <stringProp name="query">SELECT 
+    sur.ID_SERVICE_AUDIT_RESPONSE,
+    sur.RESPONSE_DATE,
+    DBMS_LOB.SUBSTR(sur.RESPONSE, 2000, 1) AS RESPONSE,
+    sur.METADATA_RESPONSE,
+    sa.*
 FROM GUS.SERVICE_AUDIT_RESPONSE sur
 INNER JOIN GUS.SERVICE_AUDIT sa
     ON sur.ID_SERVICE_AUDIT_RESPONSE = sa.ID_SERVICE_AUDIT
 WHERE sur.METADATA_RESPONSE LIKE &apos;%who(${NISS_EE})%&apos;
   AND sur.METADATA_RESPONSE LIKE &apos;%what(EEAO-O066)%&apos;
-  AND sa.request LIKE &apos;%${CT}%&apos;
+  AND DBMS_LOB.SUBSTR(sa.REQUEST, 2000, 1) LIKE &apos;%${CT}%&apos;
 ORDER BY sur.ID_SERVICE_AUDIT_RESPONSE DESC
 FETCH FIRST 1 ROWS ONLY</stringProp>
             <stringProp name="queryArguments"></stringProp>
@@ -947,15 +957,20 @@ prev.setResponseMessage(msg)
             </JSR223PostProcessor>
             <hashTree/>
           </hashTree>
-          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="GUS.SERVICE_AUDIT_RESPONSE | GUS.SERVICE_AUDIT " enabled="true">
+          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="GUS.SERVICE_AUDIT_RESPONSE | GUS.SERVICE_AUDIT ">
             <stringProp name="dataSource">gus</stringProp>
-            <stringProp name="query">SELECT sur.RESPONSE, sa.*
+            <stringProp name="query">SELECT 
+    sur.ID_SERVICE_AUDIT_RESPONSE,
+    sur.RESPONSE_DATE,
+    DBMS_LOB.SUBSTR(sur.RESPONSE, 2000, 1) AS RESPONSE,
+    sur.METADATA_RESPONSE,
+    sa.*
 FROM GUS.SERVICE_AUDIT_RESPONSE sur
 INNER JOIN GUS.SERVICE_AUDIT sa
     ON sur.ID_SERVICE_AUDIT_RESPONSE = sa.ID_SERVICE_AUDIT
 WHERE sur.METADATA_RESPONSE LIKE &apos;%who(${NISS_EE})%&apos;
   AND sur.METADATA_RESPONSE LIKE &apos;%what(EEAO-O066)%&apos;
-  AND sa.request LIKE &apos;%${CT}%&apos;
+  AND DBMS_LOB.SUBSTR(sa.REQUEST, 2000, 1) LIKE &apos;%${CT}%&apos;
 ORDER BY sur.ID_SERVICE_AUDIT_RESPONSE DESC
 FETCH FIRST 1 ROWS ONLY</stringProp>
             <stringProp name="queryArguments"></stringProp>
@@ -1038,15 +1053,20 @@ prev.setResponseMessage(msg)
             </JSR223PostProcessor>
             <hashTree/>
           </hashTree>
-          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="GUS.SERVICE_AUDIT_RESPONSE | GUS.SERVICE_AUDIT " enabled="true">
+          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="GUS.SERVICE_AUDIT_RESPONSE | GUS.SERVICE_AUDIT ">
             <stringProp name="dataSource">devGUS</stringProp>
-            <stringProp name="query">SELECT sur.*, sa.*
+            <stringProp name="query">SELECT 
+    sur.ID_SERVICE_AUDIT_RESPONSE,
+    sur.RESPONSE_DATE,
+    DBMS_LOB.SUBSTR(sur.RESPONSE, 2000, 1) AS RESPONSE,
+    sur.METADATA_RESPONSE,
+    sa.*
 FROM GUS.SERVICE_AUDIT_RESPONSE sur
 INNER JOIN GUS.SERVICE_AUDIT sa
     ON sur.ID_SERVICE_AUDIT_RESPONSE = sa.ID_SERVICE_AUDIT
 WHERE sur.METADATA_RESPONSE LIKE &apos;%who(${NISS_EE})%&apos;
   AND sur.METADATA_RESPONSE LIKE &apos;%what(EEAO-O066)%&apos;
-  AND sa.request LIKE &apos;%${CT}%&apos;
+  AND DBMS_LOB.SUBSTR(sa.REQUEST, 2000, 1) LIKE &apos;%${CT}%&apos;
 ORDER BY sur.ID_SERVICE_AUDIT_RESPONSE DESC
 FETCH FIRST 1 ROWS ONLY</stringProp>
             <stringProp name="queryArguments"></stringProp>
@@ -1135,12 +1155,12 @@ prev.setResponseMessage(msg)
             </JSR223PostProcessor>
             <hashTree/>
           </hashTree>
-          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="GUS.SERVICE_AUDIT_RESPONSE | GUS.SERVICE_AUDIT " enabled="true">
+          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="GUS.SERVICE_AUDIT_RESPONSE | GUS.SERVICE_AUDIT ">
             <stringProp name="dataSource">devGUS</stringProp>
             <stringProp name="query">SELECT 
     sur.ID_SERVICE_AUDIT_RESPONSE,
     sur.RESPONSE_DATE,
-    DBMS_LOB.SUBSTR(sur.RESPONSE, 4000, 1) AS RESPONSE,
+    DBMS_LOB.SUBSTR(sur.RESPONSE, 2000, 1) AS RESPONSE,
     sur.METADATA_RESPONSE,
     sa.*
 FROM GUS.SERVICE_AUDIT_RESPONSE sur
@@ -1148,7 +1168,7 @@ INNER JOIN GUS.SERVICE_AUDIT sa
     ON sur.ID_SERVICE_AUDIT_RESPONSE = sa.ID_SERVICE_AUDIT
 WHERE sur.METADATA_RESPONSE LIKE &apos;%who(${NISS_EE})%&apos;
   AND sur.METADATA_RESPONSE LIKE &apos;%what(EEAO-O066)%&apos;
-  AND DBMS_LOB.SUBSTR(sa.REQUEST, 4000, 1) LIKE &apos;%${CT}%&apos;
+  AND DBMS_LOB.SUBSTR(sa.REQUEST, 2000, 1) LIKE &apos;%${CT}%&apos;
 ORDER BY sur.ID_SERVICE_AUDIT_RESPONSE DESC
 FETCH FIRST 1 ROWS ONLY</stringProp>
             <stringProp name="queryArguments"></stringProp>
@@ -1272,7 +1292,7 @@ if (response.toInteger() &gt;= 1 ) {
             </JSR223PostProcessor>
             <hashTree/>
           </hashTree>
-          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="GUS.SERVICE_AUDIT_RESPONSE | GUS.SERVICE_AUDIT " enabled="true">
+          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="GUS.SERVICE_AUDIT_RESPONSE | GUS.SERVICE_AUDIT ">
             <stringProp name="dataSource">devGUS</stringProp>
             <stringProp name="query">SELECT 
     sur.ID_SERVICE_AUDIT_RESPONSE,
@@ -1413,7 +1433,7 @@ if (response.toInteger() &gt;= 1 ) {
             </JSR223PostProcessor>
             <hashTree/>
           </hashTree>
-          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="GUS.SERVICE_AUDIT_RESPONSE | GUS.SERVICE_AUDIT " enabled="true">
+          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="GUS.SERVICE_AUDIT_RESPONSE | GUS.SERVICE_AUDIT ">
             <stringProp name="dataSource">devGUS</stringProp>
             <stringProp name="query">SELECT 
     sur.ID_SERVICE_AUDIT_RESPONSE,
@@ -5441,12 +5461,12 @@ WHERE CODIGO_PARAMETRO=&apos;DVENCONFEE&apos;</stringProp>
             <hashTree/>
           </hashTree>
         </hashTree>
-        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="EEAOC-2527 : Validar que o sistema a partir do DVENCONFEE, calcula corretamente as datas de início e fim do período na passagem de ano" enabled="true">
+        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="EEAOC-2527 : Validar que o sistema a partir do DVENCONFEE, calcula corretamente as datas de início e fim do período na passagem de ano" enabled="false">
           <boolProp name="TransactionController.parent">true</boolProp>
           <boolProp name="TransactionController.includeTimers">false</boolProp>
         </TransactionController>
         <hashTree>
-          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="1. Verifica Existencia_dados_mes_corrente">
+          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="1. Verifica Existencia_dados_mes_corrente" enabled="true">
             <stringProp name="dataSource">dbConnection</stringProp>
             <stringProp name="query">select ee.ID_ENTIDADE_EMPREGADORA, 
 pc.ID_PERIODO_CONFIRMACAO, pc.DATA_INICIO_PERIODO, pc.DATA_FIM_PERIODO, cee.ID_CONFIRMACAO_ENTIDADE_EMP from 
@@ -5469,7 +5489,7 @@ fetch first 1 rows only</stringProp>
             <stringProp name="variableNames">ID_ENTIDADE_EMPREGADORA, ID_PERIODO_CONFIRMACAO, DATA_INICIO_PERIODO, DATA_FIM_PERIODO, ID_CONFIRMACAO_ENTIDADE_EMP</stringProp>
           </JDBCSampler>
           <hashTree>
-            <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="MOTH_CURRENT">
+            <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="MOTH_CURRENT" enabled="true">
               <stringProp name="scriptLanguage">groovy</stringProp>
               <stringProp name="parameters"></stringProp>
               <stringProp name="filename"></stringProp>
@@ -5576,7 +5596,7 @@ ic.ID_CONFIRMACAO_ENTIDADE_EMP = ${ID_PERIODO_CONFIRMACAO_1}</stringProp>
             </JDBCSampler>
             <hashTree/>
           </hashTree>
-          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="UPDATE_DVENCONFEE">
+          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="UPDATE_DVENCONFEE" enabled="true">
             <stringProp name="dataSource">dbConnection</stringProp>
             <stringProp name="query">UPDATE GRS.PARAMETRO
 set NUMERICO_1 = ${DIA_CHUMBADO}
@@ -5599,7 +5619,7 @@ WHERE CODIGO_PARAMETRO=&apos;DVENCONFEE&apos;</stringProp>
               <stringProp name="script">vars.put(&quot;DIA_CHUMBADO&quot;,&quot;1&quot;) </stringProp>
             </JSR223PreProcessor>
             <hashTree/>
-            <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="FINAL_DE_ANO">
+            <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="FINAL_DE_ANO" enabled="true">
               <stringProp name="scriptLanguage">groovy</stringProp>
               <stringProp name="parameters"></stringProp>
               <stringProp name="filename"></stringProp>
@@ -5714,7 +5734,7 @@ if (!response.contains(&quot;1 updates&quot;)) {
             </JSR223PostProcessor>
             <hashTree/>
           </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Executar_batch_ApuramentoParcelasEEHistorico">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Executar_batch_ApuramentoParcelasEEHistorico" enabled="true">
             <stringProp name="HTTPSampler.domain">${url_batch}</stringProp>
             <stringProp name="HTTPSampler.port">${port_batch}</stringProp>
             <stringProp name="HTTPSampler.path">/run-batch</stringProp>
@@ -5771,7 +5791,7 @@ Execution ID capturado.......: ${executionId}
             <stringProp name="WhileController.condition">${__groovy(vars.get(&quot;READY&quot;) != &quot;STOP&quot;)}</stringProp>
           </WhileController>
           <hashTree>
-            <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="FRAB.SERVIDOR_FRAB">
+            <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="FRAB.SERVIDOR_FRAB" enabled="true">
               <stringProp name="dataSource">ptecConnection</stringProp>
               <stringProp name="query">SELECT 
   e.IDENTIFICADOR_EXECUCAO, 
@@ -5843,7 +5863,7 @@ if (!valorEsperado.contains(valorBanco)) {
             <stringProp name="WhileController.condition">${__groovy(vars.get(&quot;LOOP&quot;) != &quot;STOP&quot;)}</stringProp>
           </WhileController>
           <hashTree>
-            <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="VALIDAR A DATA GERADA">
+            <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="VALIDAR A DATA GERADA" enabled="true">
               <stringProp name="dataSource">dbConnection</stringProp>
               <stringProp name="query">SELECT pc.ID_PERIODO_CONFIRMACAO, pc.DATA_INICIO_PERIODO, pc.DATA_FIM_PERIODO, ID_ENTIDADE_EMPREGADORA
 FROM EEAOC.PERIODO_CONFIRMACAO pc
@@ -5862,7 +5882,7 @@ fetch first 1 rows only</stringProp>
               <stringProp name="variableNames">ID_PERIODO_CONFIRMACAO, DATA_INICIO_PERIODO, DATA_FIM_PERIODO, ID_ENTIDADE_EMPREGADORA</stringProp>
             </JDBCSampler>
             <hashTree>
-              <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="SEND_CHECK_DATA_INICIO_BD">
+              <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="SEND_CHECK_DATA_INICIO_BD" enabled="true">
                 <stringProp name="scriptLanguage">groovy</stringProp>
                 <stringProp name="parameters"></stringProp>
                 <stringProp name="filename"></stringProp>
@@ -5873,7 +5893,7 @@ fetch first 1 rows only</stringProp>
               <hashTree/>
             </hashTree>
           </hashTree>
-          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="FALLBACK_DVENCONFEE20" enabled="true">
+          <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="FALLBACK_DVENCONFEE20">
             <stringProp name="dataSource">dbConnection</stringProp>
             <stringProp name="query">UPDATE 
 GRS.PARAMETRO 
